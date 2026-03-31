@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Interactiva - Diapositiva 3</title>
+    <link rel="stylesheet" href="Estilo.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+<body>
+
+        <!-- INICIO BARRA DE NAVEGACIÓN SUPERIOR -->
+    <nav class="top-nav">
+        <div class="nav-scroll-container">
+            <a href="Protada.html" class="nav-link">Portada</a>
+            <a href="slide1.html" class="nav-link">1</a>
+            <a href="slide2.html" class="nav-link">2</a>
+            <a href="slide3.html" class="nav-link">3</a>
+            <a href="slide4.html" class="nav-link">4</a>
+            <a href="slide5.html" class="nav-link">5</a>
+            <a href="slide6.html" class="nav-link">6</a>
+            <a href="slide7.html" class="nav-link">7</a>
+            <a href="slide8.html" class="nav-link">8</a>
+            <a href="slide9.html" class="nav-link">9</a>
+            <a href="slide10.html" class="nav-link">10</a>
+            <a href="slide11.html" class="nav-link">11</a>
+            <a href="slide12.html" class="nav-link active">12</a>
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+        <div class="slide active" id="slide-12">
+            <div class="layer-blur"></div>
+            <div class="content">
+                <h2>Conclusión</h2>
+                <div data-aos="zoom-in" data-aos-duration="2000" style="text-align: left;">
+                <p><strong>La Física en la Cotidianidad:</strong> La física no es solo teoría; es la ciencia<br>que rige absolutamente todas nuestras actividades y herramientas<br>diarias, desde las comunicaciones hasta la medicina.</p>
+                <p><strong>Nuestra labor en la enseñanza:</strong> El verdadero reto no es solo entender<br>los fenómenos, sino traducir ese conocimiento. Nuestro objetivo es err-<br>adicar el mito de que la física es inalcanzable, promoviendo en los estu-<br>diantes una visión científica que nazca de la curiosidad por su entorno<br>inmediato.</p>
+                </div>
+                <button class="next-btn" onclick="window.location.href='slide1.html'">Volver al Inicio ↺</button>
+            </div>
+            <spline-viewer data-aos="fade-up-left" class="robot-3d1" url="https://prod.spline.design/qCrrgWRBKV6MpeE5/scene.splinecode"></spline-viewer>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.73/build/spline-viewer.js"></script>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        window.onload = function() {
+            AOS.init({
+                duration: 1200,
+                once: true
+            });
+        };
+    </script>
+</body>
+</html>

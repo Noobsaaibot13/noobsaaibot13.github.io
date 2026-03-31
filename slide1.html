@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Interactiva - Diapositiva 1</title>
+    <link rel="stylesheet" href="Estilo.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+<body>
+
+    <!-- INICIO BARRA DE NAVEGACIÓN SUPERIOR -->
+    <nav class="top-nav">
+        <div class="nav-scroll-container">
+            <a href="Protada.html" class="nav-link">Portada</a>
+            <a href="slide1.html" class="nav-link active">1</a>
+            <a href="slide2.html" class="nav-link">2</a>
+            <a href="slide3.html" class="nav-link">3</a>
+            <a href="slide4.html" class="nav-link">4</a>
+            <a href="slide5.html" class="nav-link">5</a>
+            <a href="slide6.html" class="nav-link">6</a>
+            <a href="slide7.html" class="nav-link">7</a>
+            <a href="slide8.html" class="nav-link">8</a>
+            <a href="slide9.html" class="nav-link">9</a>
+            <a href="slide10.html" class="nav-link">10</a>
+            <a href="slide11.html" class="nav-link">11</a>
+            <a href="slide12.html" class="nav-link">12</a>
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+        <div class="slide active" id="slide-1">
+            <div class="layer-blur"></div>
+            <div class="content">
+                <h1 data-aos="fade-right" data-aos-duration="1500" style="margin-bottom: 10px;">¿Por qué<br>estudiar Física?</h1>
+                
+                <button data-aos="fade-right" data-aos-duration="3000" style="margin-top: 20px;" class="next-btn" onclick="window.location.href='slide2.html'">Comenzar ➔</button>
+            </div>
+            <spline-viewer data-aos="fade-up-left" class="robot-3d" url="https://prod.spline.design/RaoepUtuCKWY0o1g/scene.splinecode"></spline-viewer>
+        </div>
+    </div>
+    
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.73/build/spline-viewer.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        window.onload = function() {
+            AOS.init({
+                duration: 1200,
+                once: true
+            });
+        };
+    </script>
+</body>
+</html>

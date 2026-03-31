@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Interactiva - Diapositiva 2</title>
+    <link rel="stylesheet" href="Estilo.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+<body>
+        <!-- INICIO BARRA DE NAVEGACIÓN SUPERIOR -->
+    <nav class="top-nav">
+        <div class="nav-scroll-container">
+            <a href="Protada.html" class="nav-link">Portada</a>
+            <a href="slide1.html" class="nav-link">1</a>
+            <a href="slide2.html" class="nav-link">2</a>
+            <a href="slide3.html" class="nav-link">3</a>
+            <a href="slide4.html" class="nav-link">4</a>
+            <a href="slide5.html" class="nav-link">5</a>
+            <a href="slide6.html" class="nav-link">6</a>
+            <a href="slide7.html" class="nav-link active">7</a>
+            <a href="slide8.html" class="nav-link">8</a>
+            <a href="slide9.html" class="nav-link">9</a>
+            <a href="slide10.html" class="nav-link">10</a>
+            <a href="slide11.html" class="nav-link">11</a>
+            <a href="slide12.html" class="nav-link">12</a>
+    </nav>
+
+    <div class="presentation-container">
+        <div class="slide active id-slide3" id="slide-2">
+            <div class="layer-blur"></div>
+            <div class="slide2-layout">
+                <!-- Imagen izquierda -->
+                <div class="slide2-left">
+                    <img src="eletrodomensticos.jpeg" alt="Cinemática" class="slide-image">
+                </div>
+                
+                <!-- Contenido derecha -->
+                <div class="slide2-right">
+                    <h1 class="slide2-title">LA FÍSICA DE APARATOS QUE UTILIZAMOS</h1>
+                    <div class="keywords">
+                        <span class="keyword">magnus</span>
+                        <span class="keyword">Velocidad</span>
+                        <span class="keyword">Aceleración</span>
+                    </div>
+                    <button class="next-btn" onclick="window.location.href='slide4.html'">Siguiente Diapositiva ➔</button>
+                <spline-viewer class="robot-3d" url="https://prod.spline.design/UavFIDJfUObPFIyH/scene.splinecode"></spline-viewer>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.73/build/spline-viewer.js"></script>
+
+   
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        window.onload = function() {
+            AOS.init({
+                duration: 1200,
+                once: true
+            });
+        };
+    </script>
+</body>
+</html>
