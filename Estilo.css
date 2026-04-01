@@ -432,3 +432,141 @@ p {
     font-size: 0.9rem;
     color: #e0f2fe;
 }
+
+/* =========================================
+   📱 RESPONSIVE DESIGN (Tablets y Móviles)
+   ========================================= */
+
+/* --- TABLETS Y PANTALLAS MEDIANAS (hasta 1024px) --- */
+@media screen and (max-width: 1024px) {
+    h1, h2 {
+        font-size: 3rem;
+        padding-left: 20px;
+    }
+    
+    p {
+        padding-right: 50px; /* Reducimos drásticamente el padding de 350px */
+        padding-left: 20px;
+    }
+    
+    .content {
+        padding: 30px;
+    }
+
+    .slide-image {
+        margin-left: 0;
+        max-width: 45%;
+        align-self: center;
+    }
+
+    .slide1-layout, 
+    .slide2-layout, 
+    .slide4-layout, 
+    .slide5-layout {
+        gap: 20px;
+        width: 100%;
+    }
+    
+    /* Escalamos las decoraciones 3D para que no estorben */
+    .robot-3d, .robot-3d1 {
+        right: -40%;
+        transform: scale(0.7);
+    }
+}
+
+/* --- TELÉFONOS MÓVILES (hasta 768px) --- */
+@media screen and (max-width: 768px) {
+    /* Permitimos el scroll interno si el texto es muy largo para la pantalla */
+    .content {
+        padding: 100px 20px 30px 20px; /* Dejamos espacio arriba para el nav */
+        overflow-y: auto;
+        justify-content: flex-start;
+        pointer-events: auto; /* Fundamental para poder hacer scroll táctil */
+    }
+    
+    h1, h2 {
+        font-size: 2.2rem;
+        padding-left: 0;
+        text-align: center;
+        align-self: center;
+    }
+    
+    p {
+        font-size: 1.05rem;
+        padding-right: 0;
+        padding-left: 0;
+        text-align: left;
+        margin-bottom: 25px;
+    }
+
+    /* Cambiamos el layout de filas (horizontal) a columnas (vertical) */
+    .slide1-layout, 
+    .slide2-layout, 
+    .slide4-layout, 
+    .slide5-layout {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    
+    .slide1-left, .slide2-left, .slide4-left, .slide5-left,
+    .slide1-right, .slide2-right {
+        flex: 1 1 auto;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .slide1-title, .slide2-title {
+        text-align: center;
+    }
+
+    /* Centramos y agrandamos la imagen para móviles */
+    .slide-image {
+        max-width: 85%;
+        margin: 10px auto;
+    }
+
+    /* Botón a lo ancho de la pantalla para facilitar el toque (Touch Target) */
+    .next-btn {
+        width: 100%;
+        padding: 15px 20px;
+    }
+
+    /* Hacemos las decoraciones más sutiles para no tapar la lectura */
+    .robot-3d, .robot-3d1 {
+        opacity: 0.2;
+        right: -60%;
+        transform: scale(0.5);
+        z-index: -5;
+    }
+    
+    .layer-blur {
+        width: 15rem;
+    }
+
+    /* Centramos los tags/keywords */
+    .keywords {
+        justify-content: center;
+    }
+}
+
+/* --- TELÉFONOS PEQUEÑOS (hasta 480px) --- */
+@media screen and (max-width: 480px) {
+    h1, h2 {
+        font-size: 1.8rem;
+    }
+    
+    p {
+        font-size: 0.95rem;
+    }
+    
+    .slide-image {
+        max-width: 95%;
+    }
+    
+    .nav-link {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
