@@ -570,3 +570,36 @@ p {
         font-size: 0.9rem;
     }
 }
+
+/* --- ESTILOS PARA REFERENCIAS APA --- */
+.apa-container {
+    text-align: left;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    
+    /* --- CORRECCIÓN PARA PEGAR A LA IZQUIERDA --- */
+    align-self: flex-start; /* Empuja todo el cuadro hacia la izquierda */
+    width: 100%; /* Hace que ocupe todo el espacio disponible */
+}
+
+.apa-reference {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    
+    /* --- CORRECCIÓN PARA PC --- */
+    padding-right: 0; /* Anula los 350px del párrafo general */
+    width: 100%;
+    text-align: left; /* Evita que el texto se estire raro */
+    
+    /* Magia CSS para la Sangría Francesa (Hanging Indent) */
+    padding-left: 2.5rem;
+    text-indent: -2.5rem;
+}
+
+.apa-reference i {
+    color: #ffffff; /* Resalta los títulos de los libros en cursiva y más brillantes */
+}
