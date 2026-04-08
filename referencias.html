@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Interactiva - Referencias</title>
+    <link rel="stylesheet" href="Estilo.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-scroll-container">
+            <a href="Portada.html" class="nav-link">Portada</a>
+            <a href="slide1.html" class="nav-link">1</a>
+            <a href="slide2.html" class="nav-link">2</a>
+            <a href="slide3.html" class="nav-link">3</a>
+            <a href="slide4.html" class="nav-link">4</a>
+            <a href="slide5.html" class="nav-link">5</a>
+            <a href="slide6.html" class="nav-link">6</a>
+            <a href="slide7.html" class="nav-link">7</a>
+            <a href="slide8.html" class="nav-link">8</a>
+            <a href="slide9.html" class="nav-link">9</a>
+            <a href="slide10.html" class="nav-link">10</a>
+            <a href="slide11.html" class="nav-link">Conclusión</a>
+            <a href="referencias.html" class="nav-link active">Referencias</a>
+        </div>
+    </nav>
+
+    <div class="presentation-container">
+        <div class="slide active" id="slide-referencias">
+            <div class="layer-blur"></div>
+            
+            <div class="content" style="max-width: 1200px;">
+                <h1 data-aos="fade-down" data-aos-duration="1200" style="margin-bottom: 30px; margin-top: 2cm;">Referencias Bibliográficas</h1>
+                
+                <div data-aos="fade-up" data-aos-duration="1800" class="apa-container">
+                    
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        Hewitt, P. G. (2016). <i>Física conceptual</i> (12.ª ed.). Pearson Educación. 
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para los conceptos de óptica, formación del arcoíris y acústica).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        Serway, R. A., & Jewett, J. W. (2018). <i>Física para ciencias e ingeniería</i> (10.ª ed.). Cengage Learning.
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para termodinámica, electromagnetismo y campo magnético).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        Tipler, P. A., & Llewellyn, R. A. (2010). <i>Física moderna</i> (6.ª ed.). Reverté.
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para física nuclear, fisión y energía atómica).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        La física en el deporte: <a href="https://blog.azeheb.com.br/es/la-fisica-en-el-futbol/">https://blog.azeheb.com.br/es/la-fisica-en-el-futbol/</a>
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para la física en el fútbol).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        La física y la medicina: <a href="https://www.elhospital.com/es/noticias/la-importancia-de-la-fisica-medica-en-la-atencion-hospitalaria">https://www.elhospital.com/es/noticias/la-importancia-de-la-fisica-medica-en-la-atencion-hospitalaria</a>
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para la importancia de la física en la medicina).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        Física en los aparatos que utilizamos: Cómo funciona un refrigerador según la fisica
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para la física en electrodomésticos).</span>
+                    </p>
+
+                    <p class="apa-reference" style="font-size: 63%; margin-bottom: 20px;">
+                        Física de la tierra o geofísica: <a href="https://www.infobae.com/america/ciencia-america/2026/03/27/la-ciencia-detras-de-los-tornados-como-se-forman-y-que-ocurre-dentro-del-vortice/">https://www.infobae.com/america/ciencia-america/2026/03/27/la-ciencia-detras-de-los-tornados-como-se-forman-y-que-ocurre-dentro-del-vortice/</a>
+                        <br><span style="font-size: 0.9rem; color: #94a3b8;">(Referencia para la ciencia detrás de los tornados).</span>
+                    </p>
+
+                </div>
+                
+                <button data-aos="zoom-in" data-aos-duration="2500" class="next-btn" style="margin-top: 40px;" onclick="window.location.href='Portada.html'">Finalizar y volver a Portada ↺</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        window.onload = function() {
+            AOS.init({
+                duration: 1200,
+                once: true
+            });
+        };
+    </script>
+</body>
+</html>
