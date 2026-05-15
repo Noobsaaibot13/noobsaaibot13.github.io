@@ -1,56 +1,352 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presentación Interactiva</title>
-    <link rel="stylesheet" href="Estilo.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<meta charset="UTF-8">
+<title>Laboratorio Virtual</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial;
+    background:#0f0f0f;
+    color:white;
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:250px;
+    background:#181818;
+    padding:20px;
+    border-right:1px solid #333;
+}
+
+.sidebar h2{
+    margin-bottom:30px;
+}
+
+.sidebar p{
+    margin:15px 0;
+    color:#aaa;
+}
+
+.main{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.chatbox{
+    width:700px;
+    height:80vh;
+    background:#1b1b1b;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+.chat{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+}
+
+.bot{
+    background:#2a2a2a;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+    width:fit-content;
+    max-width:80%;
+}
+
+.user{
+    background:#0057ff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+    margin-left:auto;
+    width:fit-content;
+    max-width:80%;
+}
+
+.input-area{
+    display:flex;
+    padding:15px;
+    border-top:1px solid #333;
+}
+
+input{
+    flex:1;
+    padding:15px;
+    background:#111;
+    border:none;
+    color:white;
+    border-radius:8px;
+}
+
+button{
+    padding:15px 20px;
+    margin-left:10px;
+    background:#0057ff;
+    border:none;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+</style>
+
 </head>
+
 <body>
 
-        <!-- INICIO BARRA DE NAVEGACIÓN SUPERIOR -->
-    <nav class="top-nav">
-        <div class="nav-scroll-container">
-            <a href="Protada.html" class="nav-link active">Portada</a>
-            <a href="slide1.html" class="nav-link">1</a>
-            <a href="slide2.html" class="nav-link">2</a>
-            <a href="slide3.html" class="nav-link">3</a>
-            <a href="slide4.html" class="nav-link">4</a>
-            <a href="slide5.html" class="nav-link">5</a>
-            <a href="slide6.html" class="nav-link">6</a>
-            <a href="slide7.html" class="nav-link">7</a>
-            <a href="slide8.html" class="nav-link">8</a>
-            <a href="slide9.html" class="nav-link">9</a>
-            <a href="slide10.html" class="nav-link">10</a>
-            <a href="slide11.html" class="nav-link">11</a>
-            <a href="slide12.html" class="nav-link">12</a>
-            <a href="referencias.html" class="nav-link">Referencias</a>
+<div class="sidebar">
 
-        </div>
-    </nav>
+    <h2>Laboratorio IA</h2>
 
-    <div class="presentation-container">
-        <div class="slide active" id="slide-inicio">
-            <div class="content">
-                <h2 data-aos="fade-down" data-aos-duration="1500">Bienvenido a la Presentación</h2>
-                <p data-aos="fade-right" data-aos-duration="2000" style="margin: 5px 0;">Elaborado por: Rubén Concepción y Anthony Cáceres</p>
-                <p data-aos="fade-right" data-aos-duration="2500" style="margin: 5px 0;">Tutora: Ivis González de Jiménez</p>
-                <button data-aos="fade-up" data-aos-duration="3500" class="next-btn" onclick="window.location.href='slide1.html'">Comenzar ➔</button>
-            </div>
-        </div>
-    </div>
-    
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.73/build/spline-viewer.js"></script>
-    <script src="script.js"></script>
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script>
-        window.onload = function() {
-            AOS.init({
-                duration: 1200, // Animation duration
-                once: true // Whether animation should happen only once
-            });
-        };
-    </script>
+    <p>✔ Física</p>
+    <p>✔ Ondas</p>
+    <p>✔ MCU</p>
+    <p>✔ MAS</p>
+
+</div>
+
+<div class="main">
+
+<div class="chatbox">
+
+<div class="chat" id="chat">
+
+<div class="bot">
+Hola estudiante 👋<br><br>
+¿Cuál es tu nombre?
+</div>
+
+</div>
+
+<div class="input-area">
+
+<input 
+    type="text"
+    id="entrada"
+    placeholder="Escribe aquí..."
+>
+
+<button onclick="enviar()">
+Enviar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+
+emailjs.init({
+    publicKey:"Fku8amfDFiSI3TOYX",
+});
+
+const preguntas = [
+
+
+"¿Cuál es tu nombre?",
+
+"¿Cuál es tu cédula?",
+
+"¿Cuál es tu edad?",
+
+"¿Cuál es tu grado?",
+
+"¿Cuál es tu grupo?",
+
+"¿Cuál es la fecha?",
+
+"¿Sobre qué laboratorio deseas hablar? (Ondas)",
+
+`1. ¿Qué es una onda mecánica?<br><br>
+
+a) Una partícula fija<br>
+b) Una transferencia de energía a través de un medio<br>
+c) Una fuerza eléctrica<br>
+d) Un objeto en reposo`,
+
+`2. En una onda transversal, las partículas del medio vibran:<br><br>
+
+a) Paralelas a la propagación<br>
+b) Perpendiculares a la propagación<br>
+c) Circularmente siempre<br>
+d) No vibran`,
+
+`3. ¿Qué representa la amplitud de una onda?<br><br>
+
+a) La rapidez de la onda<br>
+b) El número de ciclos<br>
+c) El máximo desplazamiento respecto al equilibrio<br>
+d) La distancia entre nodos`,
+
+`4. ¿Qué ocurre con la velocidad de una onda en una cuerda cuando aumenta la tensión?<br><br>
+
+a) Disminuye<br>
+b) Aumenta<br>
+c) Permanece igual<br>
+d) Se anula`,
+
+`5. ¿Qué propiedad del medio hace que una onda viaje más lentamente?<br><br>
+
+a) Menor densidad lineal<br>
+b) Mayor tensión<br>
+c) Mayor densidad lineal<br>
+d) Menor longitud`,
+
+`6. ¿Qué caracteriza al movimiento oscilatorio amortiguado?<br><br>
+
+a) La amplitud aumenta<br>
+b) La amplitud permanece constante<br>
+c) La amplitud disminuye con el tiempo<br>
+d) No existe movimiento periódico`,
+
+`7. ¿Cuál de los siguientes medios produce mayor amortiguamiento?<br><br>
+
+a) Aire<br>
+b) Agua<br>
+c) Miel<br>
+d) Vacío`,
+
+`8. En una onda estacionaria, los nodos son puntos donde:<br><br>
+
+a) La amplitud es máxima<br>
+b) No hay vibración<br>
+c) La velocidad es infinita<br>
+d) La frecuencia cambia`,
+
+`9. ¿Qué relación describe la velocidad de una onda?<br><br>
+
+a) v = f λ<br>
+b) F = m a<br>
+c) V = I R<br>
+d) T = 2 π r`,
+
+`10. ¿Qué instrumento permite analizar movimiento cuadro por cuadro en los laboratorios?<br><br>
+
+a) Multímetro<br>
+b) Tracker<br>
+c) Osciloscopio<br>
+d) Vernier`
+
+
+];
+
+let respuestas = {};
+
+let paso = 0;
+
+const claves = [
+
+"nombre",
+"cedula",
+"edad",
+"grado",
+"grupo",
+"fecha",
+"laboratorio",
+"p1",
+"p2",
+"p3",
+"p4",
+"p5",
+"p6",
+"p7",
+"p8",
+"p9",
+"p10"
+
+];
+
+function agregarMensaje(texto,tipo){
+
+    const chat = document.getElementById("chat");
+
+    const div = document.createElement("div");
+
+    div.className = tipo;
+
+    div.innerHTML = texto;
+
+    chat.appendChild(div);
+
+    chat.scrollTop = chat.scrollHeight;
+
+}
+
+function enviar(){
+
+    const entrada = document.getElementById("entrada");
+
+    const texto = entrada.value;
+
+    if(texto == "") return;
+
+    agregarMensaje(texto,"user");
+
+    respuestas[claves[paso]] = texto;
+
+    entrada.value = "";
+
+    paso++;
+
+    if(paso < preguntas.length){
+
+        setTimeout(()=>{
+
+            agregarMensaje(preguntas[paso],"bot");
+
+        },500);
+
+    }
+
+    else{
+
+        agregarMensaje("✅ Enviando respuestas...","bot");
+
+        emailjs.send(
+            "service_rqixw6r",
+            "template_cuml3sr",
+            respuestas
+        )
+        .then(function(){
+
+            agregarMensaje("✅ Respuestas enviadas correctamente","bot");
+
+        })
+        .catch(function(error){
+
+            console.log(error);
+
+            agregarMensaje("❌ Error al enviar","bot");
+
+        });
+
+    }
+
+}
+
+</script>
+
 </body>
+
 </html>
