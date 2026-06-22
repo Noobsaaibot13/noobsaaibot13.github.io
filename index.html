@@ -1,352 +1,316 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorios de Física | Asistente Virtual</title>
+    <!-- Script de Spline -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.97/build/spline-viewer.js"></script>
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --primary-blue: #17203d;
+            --accent-blue: #3b82f6;
+            --text-dark: #0f172a;
+            --bot-msg: rgba(255, 255, 255, 0.8);
+            --user-msg: rgba(23, 32, 61, 0.85);
+        }
 
-<meta charset="UTF-8">
-<title>Laboratorio Virtual</title>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<style>
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            overflow: hidden;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+        /* FONDO 3D - Robot Estabilizado */
+        .spline-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Crucial para que el robot se mueva suave */
+        }
 
-body{
-    font-family:Arial;
-    background:#0f0f0f;
-    color:white;
-    display:flex;
-    height:100vh;
-}
+        /* CONTENEDOR DE CHAT CRISTALINO */
+        #chat-container {
+            position: relative;
+            z-index: 10;
+            width: 95%;
+            max-width: 550px;
+            height: 85vh;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
 
-.sidebar{
-    width:250px;
-    background:#181818;
-    padding:20px;
-    border-right:1px solid #333;
-}
+        #chat-header {
+            padding: 20px;
+            background: transparent;
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary-blue);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 1px;
+        }
 
-.sidebar h2{
-    margin-bottom:30px;
-}
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 15px;
+            scroll-behavior: smooth;
+        }
 
-.sidebar p{
-    margin:15px 0;
-    color:#aaa;
-}
+        .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.4s ease forwards;
+        }
 
-.main{
-    flex:1;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.chatbox{
-    width:700px;
-    height:80vh;
-    background:#1b1b1b;
-    border-radius:10px;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
+        .bot {
+            background: var(--bot-msg);
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
 
-.chat{
-    flex:1;
-    padding:20px;
-    overflow-y:auto;
-}
+        .user {
+            background: var(--user-msg);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
 
-.bot{
-    background:#2a2a2a;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
-    width:fit-content;
-    max-width:80%;
-}
+        #chat-input-area {
+            padding: 20px;
+            background: transparent;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
 
-.user{
-    background:#0057ff;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
-    margin-left:auto;
-    width:fit-content;
-    max-width:80%;
-}
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
 
-.input-area{
-    display:flex;
-    padding:15px;
-    border-top:1px solid #333;
-}
+        .btn {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--accent-blue);
+            color: var(--primary-blue);
+            padding: 12px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
 
-input{
-    flex:1;
-    padding:15px;
-    background:#111;
-    border:none;
-    color:white;
-    border-radius:8px;
-}
+        .btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
 
-button{
-    padding:15px 20px;
-    margin-left:10px;
-    background:#0057ff;
-    border:none;
-    color:white;
-    border-radius:8px;
-    cursor:pointer;
-}
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.6);
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
 
-</style>
-
+        /* Scrollbar estética */
+        #chat-messages::-webkit-scrollbar { width: 5px; }
+        #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    </style>
 </head>
-
 <body>
 
-<div class="sidebar">
-
-    <h2>Laboratorio IA</h2>
-
-    <p>✔ Física</p>
-    <p>✔ Ondas</p>
-    <p>✔ MCU</p>
-    <p>✔ MAS</p>
-
+<div class="spline-background">
+    <spline-viewer url="https://prod.spline.design/JtSlYOseeISNcoHE/scene.splinecode"></spline-viewer>
 </div>
 
-<div class="main">
-
-<div class="chatbox">
-
-<div class="chat" id="chat">
-
-<div class="bot">
-Hola estudiante 👋<br><br>
-¿Cuál es tu nombre?
+<div id="chat-container">
+    <div id="chat-header">ASISTENTE DE FÍSICA</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area"></div>
 </div>
-
-</div>
-
-<div class="input-area">
-
-<input 
-    type="text"
-    id="entrada"
-    placeholder="Escribe aquí..."
->
-
-<button onclick="enviar()">
-Enviar
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
+const laboratorios = {
+    1: {
+        name: "Ondas Electromagnéticas: Luz Visible",
+        publicKey: "Fku8amfDFiSI3TOYX",
+        serviceId: "service_lh4m0fu",
+        pretestTemplate: "template_inrckeq",
+        posttestTemplate: "template_mmzh92h",
+        pretest: [
+            { q: "¿Cuál de las opciones describe mejor una onda electromagnética para transmitir información?", options: ["A. Requiere un medio material.", "B. Transporta energía e información mediante variaciones.", "C. Solo se propaga en el aire.", "D. Se produce por vibraciones mecánicas."], correct: "B" },
+            { q: "En un sistema óptico, la información se representa mediante:", options: ["A. Cambios en la intensidad luminosa del LED.", "B. Cambios en la forma física del receptor.", "C. Variaciones en temperatura.", "D. Color de la protoboard."], correct: "A" },
+            { q: "La función del receptor en este sistema es:", options: ["A. Generar señales binarias.", "B. Emitir ondas.", "C. Detectar señal luminosa y convertirla en eléctrica.", "D. Aumentar potencia del LED."], correct: "C" },
+            { q: "¿Qué efecto tiene aumentar la distancia entre LED y fotoresistencia?", options: ["A. Incrementa intensidad.", "B. No produce cambios.", "C. Disminuye la intensidad detectada.", "D. Cambia la longitud de onda."], correct: "C" },
+            { q: "¿Propósito de la caja oscura?", options: ["A. Reducir consumo.", "B. Evitar interferencias de luz ambiental.", "C. Incrementar velocidad.", "D. Disminuir temperatura."], correct: "B" }
+        ],
+        posttest: ["Explique cómo se utilizó la intensidad luminosa para codificar información.", "Relación entre codificación binaria y señales luminosas.", "Función del transmisor, medio y receptor.", "Efecto de la distancia e interferencias.", "Uso de la fotoresistencia para reconstruir el mensaje."]
+    },
+    2: {
+        name: "Velocidad del Sonido (HC-SR04)",
+        publicKey: "p5EbCdVGzvNr4Pcjb",
+        serviceId: "service_ksyovja",
+        pretestTemplate: "template_x4qcd87",
+        posttestTemplate: "template_kymysew",
+        pretest: [
+            { q: "El sonido viaja en el aire porque:", options: ["A. El aire se mueve como la onda.", "B. La onda transporta energía por vibraciones.", "C. Solo existe en vacío.", "D. Depende del color."], correct: "B" },
+            { q: "¿Magnitud que indica oscilaciones por segundo?", options: ["A. Frecuencia", "B. Amplitud", "C. Periodo", "D. Longitud"], correct: "A" },
+            { q: "El tiempo registrado por Arduino en el sensor HC-SR04 es:", options: ["A. Tiempo de ida y vuelta a la superficie.", "B. Tiempo de abrir el programa.", "C. Tiempo de sensor encendido.", "D. Tiempo en desaparecer."], correct: "A" },
+            { q: "¿Si la distancia aumenta, el tiempo de ida y vuelta aumenta?", options: ["A. Verdadero", "B. Falso"], correct: "A" },
+            { q: "Relación básica para la velocidad del sonido:", options: ["A. v = d/t", "B. v = d*t", "C. v = t - d", "D. v = t/d²"], correct: "A" }
+        ],
+        posttest: ["Explique por qué el sensor permite estimar la velocidad del sonido.", "¿Qué efecto tiene la temperatura del aire sobre la velocidad?", "¿Qué representa la distancia medida entre el sensor y la superficie?", "¿Por qué es importante tomar varias mediciones?", "Explique la relación v = 2d/t."]
+    },
+    3: {
+        name: "Superposición e Interferencia de Ondas",
+        publicKey: "trCLfbeZQdl_XEMnk",
+        serviceId: "service_qt0almi",
+        pretestTemplate: "template_86yrfgn",
+        posttestTemplate: "template_exto5wr",
+        pretest: [
+            { q: "¿Qué representa la frecuencia de un tono constante?", options: ["A. Tamaño del altavoz.", "B. Distancia.", "C. Cantidad de oscilaciones por segundo.", "D. Masa de aire."], correct: "C" },
+            { q: "Cuando un sonido es más fuerte, ¿qué es mayor?", options: ["A. Frecuencia.", "B. Fase.", "C. Longitud de cable.", "D. Amplitud."], correct: "D" },
+            { q: "Si dos sonidos se refuerzan, se percibe:", options: ["A. Mayor intensidad.", "B. Desaparición.", "C. Onda estática.", "D. Frecuencia cero."], correct: "A" },
+            { q: "Si dos ondas se oponen en presión, la señal:", options: ["A. Se duplica.", "B. Se vuelve luz.", "C. Puede disminuir por oposición.", "D. Desaparece."], correct: "C" },
+            { q: "Función del micrófono:", options: ["A. Elimina la onda.", "B. Mide masa.", "C. Convierte presión en señal eléctrica.", "D. Crea luz."], correct: "C" }
+        ],
+        posttest: ["Relación entre frecuencia y periodo en osciloscopio.", "Representación de la amplitud e intensidad.", "Superposición en fase.", "Superposición en oposición de fase.", "Estudio de ondas mediante señales eléctricas."]
+    },
+    4: {
+        name: "Atenuación de Iluminancia",
+        publicKey: "p9rOBjOv7VHAhlgb7",
+        serviceId: "service_ndlx4m6",
+        pretestTemplate: "template_pyoh7by",
+        posttestTemplate: "template_aqqlnkh",
+        pretest: [
+            { q: "Alejas una linterna al doble de distancia, ¿qué ocurre?", options: ["A. Brilla el doble.", "B. Igual luz.", "C. Disminuye drásticamente.", "D. Cambia de color."], correct: "C" },
+            { q: "¿Material con menor transmitancia de luz?", options: ["A. Vidrio.", "B. Cortinas Blackout.", "C. Algodón delgado.", "D. Malla."], correct: "B" },
+            { q: "La luz debajo de un poste disminuye rápido al caminar. ¿Por qué?", options: ["A. Pérdida de energía eléctrica.", "B. El asfalto absorbe fotones.", "C. Luz solo cae hacia abajo.", "D. Se expande en el espacio (Inversa del cuadrado)."], correct: "D" },
+            { q: "Función de las gafas de sol:", options: ["A. Aumentar velocidad de luz.", "B. Reducir transmitancia óptica.", "C. Fuente puntual.", "D. Eliminar toda la luz."], correct: "B" },
+            { q: "Foto oscura con flash de lejos. Solución física:", options: ["A. Acercarte al sujeto.", "B. Cerrar ojos.", "C. Esperar humedad.", "D. Apuntar al cielo."], correct: "A" }
+        ],
+        posttest: ["Ventaja del sensor BH1750 frente al ojo humano.", "Relación entre datos obtenidos y la Ley de la Inversa del Cuadrado.", "Diferencia de transmitancia entre vidrio y cartón.", "Efecto de la emisión direccional del LED en la curva teórica.", "Diseño de protección para satélites basado en absorbancia."]
+    }
+};
 
-emailjs.init({
-    publicKey:"Fku8amfDFiSI3TOYX",
-});
+let state = { studentName: '', selectedLab: null, currentQuestionIndex: 0, pretestAnswers: [], posttestAnswers: [] };
+const chatMessages = document.getElementById('chat-messages');
+const inputArea = document.getElementById('chat-input-area');
 
-const preguntas = [
-
-
-"¿Cuál es tu nombre?",
-
-"¿Cuál es tu cédula?",
-
-"¿Cuál es tu edad?",
-
-"¿Cuál es tu grado?",
-
-"¿Cuál es tu grupo?",
-
-"¿Cuál es la fecha?",
-
-"¿Sobre qué laboratorio deseas hablar? (Ondas)",
-
-`1. ¿Qué es una onda mecánica?<br><br>
-
-a) Una partícula fija<br>
-b) Una transferencia de energía a través de un medio<br>
-c) Una fuerza eléctrica<br>
-d) Un objeto en reposo`,
-
-`2. En una onda transversal, las partículas del medio vibran:<br><br>
-
-a) Paralelas a la propagación<br>
-b) Perpendiculares a la propagación<br>
-c) Circularmente siempre<br>
-d) No vibran`,
-
-`3. ¿Qué representa la amplitud de una onda?<br><br>
-
-a) La rapidez de la onda<br>
-b) El número de ciclos<br>
-c) El máximo desplazamiento respecto al equilibrio<br>
-d) La distancia entre nodos`,
-
-`4. ¿Qué ocurre con la velocidad de una onda en una cuerda cuando aumenta la tensión?<br><br>
-
-a) Disminuye<br>
-b) Aumenta<br>
-c) Permanece igual<br>
-d) Se anula`,
-
-`5. ¿Qué propiedad del medio hace que una onda viaje más lentamente?<br><br>
-
-a) Menor densidad lineal<br>
-b) Mayor tensión<br>
-c) Mayor densidad lineal<br>
-d) Menor longitud`,
-
-`6. ¿Qué caracteriza al movimiento oscilatorio amortiguado?<br><br>
-
-a) La amplitud aumenta<br>
-b) La amplitud permanece constante<br>
-c) La amplitud disminuye con el tiempo<br>
-d) No existe movimiento periódico`,
-
-`7. ¿Cuál de los siguientes medios produce mayor amortiguamiento?<br><br>
-
-a) Aire<br>
-b) Agua<br>
-c) Miel<br>
-d) Vacío`,
-
-`8. En una onda estacionaria, los nodos son puntos donde:<br><br>
-
-a) La amplitud es máxima<br>
-b) No hay vibración<br>
-c) La velocidad es infinita<br>
-d) La frecuencia cambia`,
-
-`9. ¿Qué relación describe la velocidad de una onda?<br><br>
-
-a) v = f λ<br>
-b) F = m a<br>
-c) V = I R<br>
-d) T = 2 π r`,
-
-`10. ¿Qué instrumento permite analizar movimiento cuadro por cuadro en los laboratorios?<br><br>
-
-a) Multímetro<br>
-b) Tracker<br>
-c) Osciloscopio<br>
-d) Vernier`
-
-
-];
-
-let respuestas = {};
-
-let paso = 0;
-
-const claves = [
-
-"nombre",
-"cedula",
-"edad",
-"grado",
-"grupo",
-"fecha",
-"laboratorio",
-"p1",
-"p2",
-"p3",
-"p4",
-"p5",
-"p6",
-"p7",
-"p8",
-"p9",
-"p10"
-
-];
-
-function agregarMensaje(texto,tipo){
-
-    const chat = document.getElementById("chat");
-
-    const div = document.createElement("div");
-
-    div.className = tipo;
-
-    div.innerHTML = texto;
-
-    chat.appendChild(div);
-
-    chat.scrollTop = chat.scrollHeight;
-
+function addMsg(text, sender) {
+    const d = document.createElement('div');
+    d.className = `message ${sender}`;
+    d.innerText = text;
+    chatMessages.appendChild(d);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function enviar(){
-
-    const entrada = document.getElementById("entrada");
-
-    const texto = entrada.value;
-
-    if(texto == "") return;
-
-    agregarMensaje(texto,"user");
-
-    respuestas[claves[paso]] = texto;
-
-    entrada.value = "";
-
-    paso++;
-
-    if(paso < preguntas.length){
-
-        setTimeout(()=>{
-
-            agregarMensaje(preguntas[paso],"bot");
-
-        },500);
-
-    }
-
-    else{
-
-        agregarMensaje("✅ Enviando respuestas...","bot");
-
-        emailjs.send(
-            "service_rqixw6r",
-            "template_cuml3sr",
-            respuestas
-        )
-        .then(function(){
-
-            agregarMensaje("✅ Respuestas enviadas correctamente","bot");
-
-        })
-        .catch(function(error){
-
-            console.log(error);
-
-            agregarMensaje("❌ Error al enviar","bot");
-
-        });
-
-    }
-
+function init() {
+    addMsg("¡Hola! Soy tu asistente de laboratorio. ¿Cuál es tu nombre completo?", 'bot');
+    const c = document.createElement('div');
+    c.className = 'options-container';
+    const i = document.createElement('input');
+    i.type = 'text'; i.placeholder = 'Nombre aquí...';
+    const b = document.createElement('button');
+    b.innerText = 'Empezar'; b.className = 'btn';
+    b.onclick = () => { if(i.value.trim()){ state.studentName = i.value.trim(); addMsg(state.studentName, 'user'); selectLab(); }};
+    c.append(i, b); inputArea.append(c);
 }
 
+function selectLab() {
+    inputArea.innerHTML = '';
+    addMsg(`Hola ${state.studentName}, selecciona el laboratorio de hoy:`, 'bot');
+    const c = document.createElement('div');
+    c.className = 'options-container';
+    for(let id in laboratorios){
+        const b = document.createElement('button');
+        b.className = 'btn'; b.innerText = laboratorios[id].name;
+        b.onclick = () => { state.selectedLab = laboratorios[id]; emailjs.init(state.selectedLab.publicKey); addMsg(state.selectedLab.name, 'user'); runPre(); };
+        c.append(b);
+    }
+    inputArea.append(c);
+}
+
+function runPre() {
+    inputArea.innerHTML = '';
+    const lab = state.selectedLab;
+    if(state.currentQuestionIndex >= lab.pretest.length){
+        addMsg("¡Pretest completado! Pasamos al Postest.", 'bot');
+        sendPre(); state.currentQuestionIndex = 0; runPost(); return;
+    }
+    const q = lab.pretest[state.currentQuestionIndex];
+    addMsg(q.q, 'bot');
+    const c = document.createElement('div');
+    c.className = 'options-container';
+    q.options.forEach(o => {
+        const b = document.createElement('button'); b.className = 'btn'; b.innerText = o;
+        b.onclick = () => { state.pretestAnswers.push({q: q.q, a: o.charAt(0)}); addMsg(o, 'user'); state.currentQuestionIndex++; runPre(); };
+        c.append(b);
+    });
+    inputArea.append(c);
+}
+
+function runPost() {
+    inputArea.innerHTML = '';
+    const lab = state.selectedLab;
+    if(state.currentQuestionIndex >= lab.posttest.length){
+        sendPost(); addMsg("Has terminado con éxito. Ya puedes cerrar esta ventana.", 'bot'); return;
+    }
+    const q = lab.posttest[state.currentQuestionIndex];
+    addMsg(q, 'bot');
+    const t = document.createElement('textarea');
+    const b = document.createElement('button');
+    b.innerText = 'Enviar Respuesta'; b.className = 'btn';
+    b.onclick = () => { if(t.value.trim()){ state.posttestAnswers.push({q: q, a: t.value.trim()}); addMsg(t.value.trim(), 'user'); state.currentQuestionIndex++; runPost(); }};
+    inputArea.append(t, b);
+}
+
+function sendPre() {
+    const lab = state.selectedLab;
+    const p = { student_name: state.studentName, lab_name: lab.name, 
+                q1_ans: state.pretestAnswers[0].a, q2_ans: state.pretestAnswers[1].a, 
+                q3_ans: state.pretestAnswers[2].a, q4_ans: state.pretestAnswers[3].a, q5_ans: state.pretestAnswers[4].a };
+    emailjs.send(lab.serviceId, lab.pretestTemplate, p);
+}
+
+function sendPost() {
+    const lab = state.selectedLab;
+    const p = { student_name: state.studentName, lab_name: lab.name, 
+                qa_ans: state.posttestAnswers[0].a, qb_ans: state.posttestAnswers[1].a, 
+                qc_ans: state.posttestAnswers[2].a, qd_ans: state.posttestAnswers[3].a, qe_ans: state.posttestAnswers[4].a };
+    emailjs.send(lab.serviceId, lab.posttestTemplate, p);
+}
+
+window.onload = init;
 </script>
-
 </body>
-
 </html>
