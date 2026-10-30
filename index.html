@@ -1,316 +1,5126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorios de Física | Asistente Virtual</title>
-    <!-- Script de Spline -->
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.97/build/spline-viewer.js"></script>
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
-    <style>
-        :root {
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --primary-blue: #17203d;
-            --accent-blue: #3b82f6;
-            --text-dark: #0f172a;
-            --bot-msg: rgba(255, 255, 255, 0.8);
-            --user-msg: rgba(23, 32, 61, 0.85);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Caja de los Enigmas Físicos — Simulador Experimental Interactivo</title>
+  <style>
+/* ==========================================================================
+   LA CAJA DE LOS ENIGMAS FÍSICOS — ESTILOS DE INSTRUMENTACIÓN INDUSTRIAL
+   ========================================================================== */
+:root {
+  --bg-deep: #070a0f;
+  --bg-chassis: #0f141d;
+  --bg-panel: #151c28;
+  --bg-panel-elevated: #1c2536;
+  --border-metal: #2c394f;
+  --border-highlight: #435575;
+  --text-primary: #e6edf7;
+  --text-secondary: #9fb0c9;
+  --text-muted: #687a96;
+  --accent-amber: #f59e0b;
+  --accent-amber-glow: rgba(245, 158, 11, 0.25);
+  --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.28);
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
 
-        body {
-            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #ffffff;
-            overflow: hidden;
-        }
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(circle at 50% 35%, rgba(26, 38, 57, 0.45) 0%, rgba(7, 10, 15, 0.95) 80%),
+    linear-gradient(rgba(44, 57, 79, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44, 57, 79, 0.12) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-        /* FONDO 3D - Robot Estabilizado */
-        .spline-background {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-            pointer-events: none; /* Crucial para que el robot se mueva suave */
-        }
+/* Top Hardware Header Bar */
+.hardware-header {
+  height: 52px;
+  min-height: 52px;
+  background: linear-gradient(180deg, #1a2230 0%, #101620 100%);
+  border-bottom: 2px solid var(--border-metal);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  gap: 10px;
+  z-index: 30;
+}
 
-        /* CONTENEDOR DE CHAT CRISTALINO */
-        #chat-container {
-            position: relative;
-            z-index: 10;
-            width: 95%;
-            max-width: 550px;
-            height: 85vh;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 28px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            display: flex; flex-direction: column;
-            overflow: hidden;
-        }
+.brand-plate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0b0f17;
+  border: 1px solid #2a364b;
+  padding: 5px 12px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+}
 
-        #chat-header {
-            padding: 20px;
-            background: transparent;
-            text-align: center;
-            font-weight: 700;
-            color: var(--primary-blue);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            letter-spacing: 1px;
-        }
+.screw-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #6c7f9c, #253042);
+  border: 1px solid #141a24;
+  display: inline-block;
+}
 
-        #chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex; flex-direction: column; gap: 15px;
-            scroll-behavior: smooth;
-        }
+.brand-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #d8e3f2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-        .message {
-            max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            animation: fadeIn 0.4s ease forwards;
-        }
+.module-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #0a0e15;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #253145;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.step-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 3px;
+  background: #141b27;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
 
-        .bot {
-            background: var(--bot-msg);
-            color: var(--text-dark);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
+.step-pill:hover {
+  color: var(--text-primary);
+  border-color: #384966;
+}
 
-        .user {
-            background: var(--user-msg);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
+.step-pill.active {
+  background: #1f2b3e;
+  color: #38bdf8;
+  border-color: #0284c7;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+}
 
-        #chat-input-area {
-            padding: 20px;
-            background: transparent;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-        }
+.step-pill.completed {
+  color: var(--accent-green);
+  border-color: rgba(16, 185, 129, 0.35);
+}
 
-        .options-container { display: flex; flex-direction: column; gap: 10px; }
+.step-pill.locked {
+  opacity: 0.55;
+}
 
-        .btn {
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid var(--accent-blue);
-            color: var(--primary-blue);
-            padding: 12px 16px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-align: left;
-        }
+.status-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #475569;
+}
 
-        .btn:hover {
-            background: var(--primary-blue);
-            color: white;
-            transform: translateY(-2px);
-        }
+.step-pill.active .status-led {
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
 
-        textarea, input[type="text"] {
-            width: 100%;
-            padding: 14px;
-            border-radius: 14px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.6);
-            outline: none;
-            font-family: inherit;
-            margin-bottom: 10px;
-        }
+.step-pill.completed .status-led {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
 
-        /* Scrollbar estética */
-        #chat-messages::-webkit-scrollbar { width: 5px; }
-        #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-    </style>
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.hw-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #243044 0%, #182130 100%);
+  color: #d2deef;
+  border: 1px solid #374863;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.5);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.hw-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #2d3c54 0%, #1f2b3e 100%);
+  border-color: #526b91;
+  color: #ffffff;
+}
+
+.hw-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.hw-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hw-btn.btn-amber {
+  background: linear-gradient(180deg, #78350f 0%, #451a03 100%);
+  border-color: #d97706;
+  color: #fde68a;
+}
+
+.hw-btn.btn-amber:hover:not(:disabled) {
+  background: linear-gradient(180deg, #92400e 0%, #5c2406 100%);
+  border-color: #f59e0b;
+}
+
+.hw-btn.btn-cyan {
+  background: linear-gradient(180deg, #155e75 0%, #083344 100%);
+  border-color: #06b6d4;
+  color: #cffafe;
+}
+
+.hw-btn.btn-cyan:hover:not(:disabled) {
+  background: linear-gradient(180deg, #0e7490 0%, #164e63 100%);
+}
+
+.hw-btn.active-toggle {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: #112233;
+}
+
+/* Main Workspace Container */
+.workspace-area {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Center Stage (Canvas + Floating Controls + Bottom Tray) */
+.stage-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.canvas-viewport {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+  padding: 8px;
+}
+
+#simCanvas {
+  display: block;
+  background: transparent;
+  border-radius: 6px;
+  cursor: default;
+  touch-action: none;
+}
+
+/* Floating Context Bar inside Viewport (Top-Left & Top-Right overlays) */
+.viewport-hud-left {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.hud-badge {
+  background: rgba(11, 15, 23, 0.88);
+  border: 1px solid #2e3d54;
+  border-left: 3px solid var(--accent-cyan);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  pointer-events: auto;
+}
+
+.hud-badge .sub {
+  color: var(--text-secondary);
+  font-size: 10px;
+  display: block;
+  margin-top: 2px;
+}
+
+.viewport-hud-right {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 12;
+}
+
+/* Floating Selection & Rotation Inspector */
+.piece-inspector {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 20, 30, 0.94);
+  border: 1px solid #3b4f6e;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  z-index: 15;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.piece-inspector.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(8px);
+}
+
+.inspector-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  padding-right: 8px;
+  border-right: 1px solid #2b3950;
+}
+
+.angle-slider {
+  width: 110px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+.angle-readout {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #f8fafc;
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Bottom Hardware Inventory Tray */
+.inventory-dock {
+  height: 114px;
+  min-height: 114px;
+  background: linear-gradient(180deg, #131a26 0%, #0b0f17 100%);
+  border-top: 2px solid #29364c;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 20;
+}
+
+.dock-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 155px;
+  border-right: 1px solid #243044;
+  padding-right: 12px;
+}
+
+.dock-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dock-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.dock-items {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 4px;
+}
+
+.inv-card {
+  min-width: 98px;
+  height: 92px;
+  background: linear-gradient(180deg, #1a2333 0%, #111722 100%);
+  border: 1px solid #2e3e59;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px;
+  cursor: grab;
+  position: relative;
+  transition: all 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 5px rgba(0,0,0,0.4);
+}
+
+.inv-card:hover:not(.depleted) {
+  border-color: #38bdf8;
+  background: linear-gradient(180deg, #212d42 0%, #151e2d 100%);
+  transform: translateY(-2px);
+}
+
+.inv-card.selected-card {
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.inv-card.depleted {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.inv-count-badge {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #0c121c;
+  color: #38bdf8;
+  border: 1px solid #26354d;
+}
+
+.inv-icon-canvas {
+  width: 64px;
+  height: 48px;
+  display: block;
+}
+
+.inv-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #cbd5e1;
+  text-align: center;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.dock-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 145px;
+  border-left: 1px solid #243044;
+  padding-left: 12px;
+}
+
+/* Collapsible Scientific Side Panel */
+.scientific-drawer {
+  width: 370px;
+  max-width: 90vw;
+  background: linear-gradient(180deg, #131b28 0%, #0c111a 100%);
+  border-left: 2px solid #2b3950;
+  display: flex;
+  flex-direction: column;
+  z-index: 25;
+  transition: margin-right 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.65);
+}
+
+.scientific-drawer.closed {
+  margin-right: -370px;
+}
+
+.drawer-header {
+  padding: 12px 14px;
+  background: #182232;
+  border-bottom: 1px solid #2c3b54;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.drawer-tabs {
+  display: flex;
+  border-bottom: 1px solid #253349;
+  background: #0f1520;
+}
+
+.drawer-tab {
+  flex: 1;
+  padding: 8px 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.drawer-tab.active {
+  color: #f8fafc;
+  border-bottom-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.07);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sci-section {
+  background: #141c2b;
+  border: 1px solid #26344d;
+  border-radius: 5px;
+  padding: 10px 12px;
+}
+
+.sci-section h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sci-section p, .sci-section li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.sci-section ul {
+  padding-left: 16px;
+  margin-top: 4px;
+}
+
+.sci-formula {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: #0a0f18;
+  border: 1px solid #233047;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: #67e8f9;
+  margin: 6px 0;
+  text-align: center;
+}
+
+/* Start Screen Overlay */
+.start-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(15, 22, 34, 0.45) 0%, rgba(7, 10, 15, 0.92) 85%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 32px;
+  z-index: 18;
+  pointer-events: none;
+}
+
+.start-overlay.hidden {
+  display: none;
+}
+
+.start-header-box {
+  max-width: 560px;
+  background: rgba(12, 17, 26, 0.88);
+  border: 1px solid #334460;
+  border-left: 4px solid #f59e0b;
+  padding: 16px 20px;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.75);
+  pointer-events: auto;
+}
+
+.start-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #f59e0b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.start-main-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 4px 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.start-desc {
+  font-size: 12.5px;
+  color: #9fb0c9;
+  line-height: 1.45;
+}
+
+.start-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.start-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-launch {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  color: #090d14;
+  border: 1px solid #fbbf24;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-launch:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+/* Modal for Progressive Hints & Technical Documentation */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 13, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.modal-card {
+  width: 760px;
+  max-width: 96vw;
+  max-height: 88vh;
+  background: #121926;
+  border: 1px solid #384b6b;
+  border-radius: 6px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 12px 16px;
+  background: #192334;
+  border-bottom: 1px solid #2d3d59;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.modal-content {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.hint-tier {
+  background: #172133;
+  border: 1px solid #2b3c57;
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.hint-tier.locked-tier {
+  opacity: 0.6;
+}
+
+.toast-banner {
+  position: fixed;
+  bottom: 126px;
+  right: 20px;
+  background: rgba(15, 23, 36, 0.95);
+  border: 1px solid #38bdf8;
+  border-left: 4px solid #38bdf8;
+  color: #f1f5f9;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.65);
+  z-index: 45;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast-banner.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+@media (max-width: 900px) {
+  .brand-title { font-size: 10px; }
+  .inventory-dock { height: 104px; min-height: 104px; }
+  .dock-header { display: none; }
+  .scientific-drawer { position: absolute; right: 0; top: 0; bottom: 0; }
+}
+
+</style>
 </head>
 <body>
+  <!-- Barra de Instrumentación Superior -->
+  <header class="hardware-header">
+    <div class="brand-plate">
+      <span class="screw-dot"></span>
+      <span class="brand-title">LA CAJA DE LOS ENIGMAS FÍSICOS</span>
+      <span class="screw-dot"></span>
+    </div>
 
-<div class="spline-background">
-    <spline-viewer url="https://prod.spline.design/JtSlYOseeISNcoHE/scene.splinecode"></spline-viewer>
-</div>
+    <nav class="module-stepper" aria-label="Selector de compartimentos">
+      <button id="pillStart" class="step-pill active" type="button" title="Vista general 3D de la caja experimental">
+        <span class="status-led"></span>Vista 3D Caja
+      </button>
+      <button id="pillCh1" class="step-pill" type="button" title="Primer Enigma: Sistema Óptico de Distribución Luminosa">
+        <span class="status-led"></span>I. Óptica
+      </button>
+      <button id="pillCh2" class="step-pill locked" type="button" title="Segundo Enigma: Sistema de Resortes y Elasticidad">
+        <span class="status-led"></span>II. Elasticidad
+      </button>
+      <button id="pillCh3" class="step-pill locked" type="button" title="Tercer Compartimento: Módulo Reservado">
+        <span class="status-led"></span>III. Reservado
+      </button>
+    </nav>
 
-<div id="chat-container">
-    <div id="chat-header">ASISTENTE DE FÍSICA</div>
-    <div id="chat-messages"></div>
-    <div id="chat-input-area"></div>
-</div>
+    <div class="header-controls">
+      <button id="btnDevMode" class="hw-btn" type="button" title="Activa el modo de prueba individual de módulos sin bloqueo secuencial">
+        Modo Lab/Dev: OFF
+      </button>
+      <button id="btnScientificPanel" class="hw-btn btn-cyan" type="button" title="Abrir/cerrar el Panel Científico Secundario">
+        Panel Científico
+      </button>
+      <button id="btnHints" class="hw-btn btn-amber" type="button" title="Consultar pistas físicas progresivas">
+        Ayuda / Pistas
+      </button>
+      <button id="btnTechDocs" class="hw-btn" type="button" title="Documentación técnica, arquitectura y verificación física">
+        Doc. Técnica
+      </button>
+    </div>
+  </header>
 
-<script>
-const laboratorios = {
-    1: {
-        name: "Ondas Electromagnéticas: Luz Visible",
-        publicKey: "Fku8amfDFiSI3TOYX",
-        serviceId: "service_lh4m0fu",
-        pretestTemplate: "template_inrckeq",
-        posttestTemplate: "template_mmzh92h",
-        pretest: [
-            { q: "¿Cuál de las opciones describe mejor una onda electromagnética para transmitir información?", options: ["A. Requiere un medio material.", "B. Transporta energía e información mediante variaciones.", "C. Solo se propaga en el aire.", "D. Se produce por vibraciones mecánicas."], correct: "B" },
-            { q: "En un sistema óptico, la información se representa mediante:", options: ["A. Cambios en la intensidad luminosa del LED.", "B. Cambios en la forma física del receptor.", "C. Variaciones en temperatura.", "D. Color de la protoboard."], correct: "A" },
-            { q: "La función del receptor en este sistema es:", options: ["A. Generar señales binarias.", "B. Emitir ondas.", "C. Detectar señal luminosa y convertirla en eléctrica.", "D. Aumentar potencia del LED."], correct: "C" },
-            { q: "¿Qué efecto tiene aumentar la distancia entre LED y fotoresistencia?", options: ["A. Incrementa intensidad.", "B. No produce cambios.", "C. Disminuye la intensidad detectada.", "D. Cambia la longitud de onda."], correct: "C" },
-            { q: "¿Propósito de la caja oscura?", options: ["A. Reducir consumo.", "B. Evitar interferencias de luz ambiental.", "C. Incrementar velocidad.", "D. Disminuir temperatura."], correct: "B" }
-        ],
-        posttest: ["Explique cómo se utilizó la intensidad luminosa para codificar información.", "Relación entre codificación binaria y señales luminosas.", "Función del transmisor, medio y receptor.", "Efecto de la distancia e interferencias.", "Uso de la fotoresistencia para reconstruir el mensaje."]
-    },
-    2: {
-        name: "Velocidad del Sonido (HC-SR04)",
-        publicKey: "p5EbCdVGzvNr4Pcjb",
-        serviceId: "service_ksyovja",
-        pretestTemplate: "template_x4qcd87",
-        posttestTemplate: "template_kymysew",
-        pretest: [
-            { q: "El sonido viaja en el aire porque:", options: ["A. El aire se mueve como la onda.", "B. La onda transporta energía por vibraciones.", "C. Solo existe en vacío.", "D. Depende del color."], correct: "B" },
-            { q: "¿Magnitud que indica oscilaciones por segundo?", options: ["A. Frecuencia", "B. Amplitud", "C. Periodo", "D. Longitud"], correct: "A" },
-            { q: "El tiempo registrado por Arduino en el sensor HC-SR04 es:", options: ["A. Tiempo de ida y vuelta a la superficie.", "B. Tiempo de abrir el programa.", "C. Tiempo de sensor encendido.", "D. Tiempo en desaparecer."], correct: "A" },
-            { q: "¿Si la distancia aumenta, el tiempo de ida y vuelta aumenta?", options: ["A. Verdadero", "B. Falso"], correct: "A" },
-            { q: "Relación básica para la velocidad del sonido:", options: ["A. v = d/t", "B. v = d*t", "C. v = t - d", "D. v = t/d²"], correct: "A" }
-        ],
-        posttest: ["Explique por qué el sensor permite estimar la velocidad del sonido.", "¿Qué efecto tiene la temperatura del aire sobre la velocidad?", "¿Qué representa la distancia medida entre el sensor y la superficie?", "¿Por qué es importante tomar varias mediciones?", "Explique la relación v = 2d/t."]
-    },
-    3: {
-        name: "Superposición e Interferencia de Ondas",
-        publicKey: "trCLfbeZQdl_XEMnk",
-        serviceId: "service_qt0almi",
-        pretestTemplate: "template_86yrfgn",
-        posttestTemplate: "template_exto5wr",
-        pretest: [
-            { q: "¿Qué representa la frecuencia de un tono constante?", options: ["A. Tamaño del altavoz.", "B. Distancia.", "C. Cantidad de oscilaciones por segundo.", "D. Masa de aire."], correct: "C" },
-            { q: "Cuando un sonido es más fuerte, ¿qué es mayor?", options: ["A. Frecuencia.", "B. Fase.", "C. Longitud de cable.", "D. Amplitud."], correct: "D" },
-            { q: "Si dos sonidos se refuerzan, se percibe:", options: ["A. Mayor intensidad.", "B. Desaparición.", "C. Onda estática.", "D. Frecuencia cero."], correct: "A" },
-            { q: "Si dos ondas se oponen en presión, la señal:", options: ["A. Se duplica.", "B. Se vuelve luz.", "C. Puede disminuir por oposición.", "D. Desaparece."], correct: "C" },
-            { q: "Función del micrófono:", options: ["A. Elimina la onda.", "B. Mide masa.", "C. Convierte presión en señal eléctrica.", "D. Crea luz."], correct: "C" }
-        ],
-        posttest: ["Relación entre frecuencia y periodo en osciloscopio.", "Representación de la amplitud e intensidad.", "Superposición en fase.", "Superposición en oposición de fase.", "Estudio de ondas mediante señales eléctricas."]
-    },
-    4: {
-        name: "Atenuación de Iluminancia",
-        publicKey: "p9rOBjOv7VHAhlgb7",
-        serviceId: "service_ndlx4m6",
-        pretestTemplate: "template_pyoh7by",
-        posttestTemplate: "template_aqqlnkh",
-        pretest: [
-            { q: "Alejas una linterna al doble de distancia, ¿qué ocurre?", options: ["A. Brilla el doble.", "B. Igual luz.", "C. Disminuye drásticamente.", "D. Cambia de color."], correct: "C" },
-            { q: "¿Material con menor transmitancia de luz?", options: ["A. Vidrio.", "B. Cortinas Blackout.", "C. Algodón delgado.", "D. Malla."], correct: "B" },
-            { q: "La luz debajo de un poste disminuye rápido al caminar. ¿Por qué?", options: ["A. Pérdida de energía eléctrica.", "B. El asfalto absorbe fotones.", "C. Luz solo cae hacia abajo.", "D. Se expande en el espacio (Inversa del cuadrado)."], correct: "D" },
-            { q: "Función de las gafas de sol:", options: ["A. Aumentar velocidad de luz.", "B. Reducir transmitancia óptica.", "C. Fuente puntual.", "D. Eliminar toda la luz."], correct: "B" },
-            { q: "Foto oscura con flash de lejos. Solución física:", options: ["A. Acercarte al sujeto.", "B. Cerrar ojos.", "C. Esperar humedad.", "D. Apuntar al cielo."], correct: "A" }
-        ],
-        posttest: ["Ventaja del sensor BH1750 frente al ojo humano.", "Relación entre datos obtenidos y la Ley de la Inversa del Cuadrado.", "Diferencia de transmitancia entre vidrio y cartón.", "Efecto de la emisión direccional del LED en la curva teórica.", "Diseño de protección para satélites basado en absorbancia."]
+  <!-- Área Principal de Trabajo -->
+  <main class="workspace-area">
+    <section class="stage-column">
+      <div class="canvas-viewport">
+        <!-- Indicadores discretos en la esquina superior izquierda del visor -->
+        <div id="viewportHudLeft" class="viewport-hud-left" style="display:none;">
+          <div class="hud-badge">
+            <span id="hudPrimaryText">ENIGMA I: DISTRIBUCIÓN LUMINOSA</span>
+            <span id="hudSecondaryText" class="sub">Arrastra componentes desde la bandeja inferior hacia la caja.</span>
+          </div>
+        </div>
+
+        <!-- Controles auxiliares discretos en la esquina superior derecha del visor -->
+        <div id="viewportHudRight" class="viewport-hud-right" style="display:none;">
+          <button id="btnSkipTransition" class="hw-btn btn-amber" type="button" style="display:none;">
+            Omitir Transición ⏭
+          </button>
+          <button id="btnToggleSnap" class="hw-btn active-toggle" type="button" title="Alternar asistencia magnética a los rieles del banco óptico">
+            Anclaje Riel: ON
+          </button>
+          <button id="btnToggleAcrylic" class="hw-btn active-toggle" type="button" title="Mostrar u ocultar reflejos de la cubierta de acrílico transparente">
+            Cubierta Acrílico
+          </button>
+          <button id="btnMuteAudio" class="hw-btn" type="button" title="Activar o silenciar efectos acústicos mecánicos">
+            Audio: ON
+          </button>
+        </div>
+
+        <!-- Lienzo Físico Interactivo 2D / 2.5D / 3D -->
+        <canvas id="simCanvas" width="900" height="560"></canvas>
+
+        <!-- Controlador flotante de rotación continua y retirada de pieza seleccionada -->
+        <div id="pieceInspector" class="piece-inspector hidden">
+          <span id="inspectorPieceName" class="inspector-name">Componente</span>
+          <button id="btnRotMinus15" class="hw-btn" type="button" title="Girar -15°">-15°</button>
+          <button id="btnRotMinus1" class="hw-btn" type="button" title="Girar -1°">-1°</button>
+          <input id="inspectorAngleSlider" class="angle-slider" type="range" min="-180" max="180" step="1" value="-45" />
+          <span id="inspectorAngleReadout" class="angle-readout">-45°</span>
+          <button id="btnRotPlus1" class="hw-btn" type="button" title="Girar +1°">+1°</button>
+          <button id="btnRotPlus15" class="hw-btn" type="button" title="Girar +15°">+15°</button>
+          <button id="btnRemovePiece" class="hw-btn btn-amber" type="button" title="Retirar pieza del tablero y devolverla al inventario (Supr)">
+            Devolver a Bandeja
+          </button>
+        </div>
+
+        <!-- Pantalla de Inicio Superpuesta sobre la Maqueta 3D Oblicua de la Caja -->
+        <div id="startOverlay" class="start-overlay">
+          <div class="start-header-box">
+            <div class="start-tag">Diseño e Innovación con Física Experimental</div>
+            <h1 class="start-main-title">La Caja de los Enigmas Físicos</h1>
+            <p class="start-desc">
+              Dispositivo experimental interactivo integrado por tres compartimentos físicos conectados secuencialmente. Manipula espejos, divisores de haz, lentes, prismas y resortes helicoidales para activar mecanismos reales sin formularios ni cuestionarios numéricos.
+            </p>
+          </div>
+
+          <div class="start-footer-bar">
+            <div class="hud-badge" style="border-left-color:#f59e0b;">
+              <span>INSPECCIÓN 3D DE LA MAQUETA: Arrastra con el ratón o pantalla táctil para girar la perspectiva oblicua de la caja.</span>
+            </div>
+            <div class="start-actions">
+              <button id="btnStartNew" class="btn-launch" type="button">Iniciar Experimento</button>
+              <button id="btnStartContinue" class="hw-btn btn-cyan" type="button" style="display:none; padding:10px 16px;">
+                Continuar Partida
+              </button>
+              <button id="btnStartResetAll" class="hw-btn" type="button" style="padding:10px 14px;">
+                Reiniciar Caja
+              </button>
+              <button id="btnStartDocs" class="hw-btn" type="button" style="padding:10px 14px;">
+                Información y Verificación
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bandeja Inferior de Inventario de Materiales y Acciones del Módulo -->
+      <footer id="inventoryDock" class="inventory-dock" style="display:none;">
+        <div class="dock-header">
+          <div id="dockTitleText" class="dock-title">Inventario Óptico</div>
+          <div id="dockSubtitleText" class="dock-subtitle">
+            Haz clic o arrastra piezas al interior de la caja y gíralas.
+          </div>
+        </div>
+
+        <div id="dockItemsContainer" class="dock-items"></div>
+
+        <div class="dock-actions">
+          <button id="btnUndo" class="hw-btn" type="button" disabled title="Deshacer la última acción realizada en el módulo">
+            ↶ Deshacer Acción
+          </button>
+          <button id="btnResetChamber" class="hw-btn btn-amber" type="button" title="Reiniciar el enigma actual devolviendo todas las piezas a su estado inicial">
+            ⟲ Reiniciar Enigma
+          </button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- Panel Científico Secundario Desplegable -->
+    <aside id="scientificDrawer" class="scientific-drawer closed" aria-label="Panel Científico de Consulta">
+      <div class="drawer-header">
+        <span class="drawer-title">Cuaderno de Laboratorio Virtual</span>
+        <button id="btnCloseDrawer" class="hw-btn" type="button">✕ Cerrar</button>
+      </div>
+      <div class="drawer-tabs">
+        <button class="drawer-tab active" data-tab="optica" type="button">I. Óptica</button>
+        <button class="drawer-tab" data-tab="elasticidad" type="button">II. Elasticidad</button>
+        <button class="drawer-tab" data-tab="arquitectura" type="button">III. Prototipo</button>
+      </div>
+      <div id="scientificDrawerBody" class="drawer-body"></div>
+    </aside>
+  </main>
+
+  <!-- Modal para Pistas Progresivas y Documentación Técnica -->
+  <div id="infoModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="infoModalTitle">Información del Sistema</h3>
+        <button id="btnCloseModal" class="hw-btn" type="button">✕ Cerrar</button>
+      </div>
+      <div id="infoModalContent" class="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Banner de Retroalimentación Física y Avisos -->
+  <div id="toastBanner" class="toast-banner hidden"></div>
+
+  <!-- 10 Módulos Independientes Integrados -->
+  <script>
+// ============================================================================
+// MÓDULO 10: GESTIÓN DE ERRORES, AUDIO SINTETIZADO Y REINICIO (10_error_audio_reset.js)
+// ============================================================================
+
+const SoundEngine = {
+  ctx: null,
+  muted: false,
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
     }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+  },
+
+  toggleMute() {
+    this.muted = !this.muted;
+    return this.muted;
+  },
+
+  playClick(freq = 520, duration = 0.045, type = 'triangle', gainVal = 0.08) {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.65, now + duration);
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    } catch (e) {}
+  },
+
+  playMechanicalLatch() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      [180, 260, 420].forEach((f, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, now + idx * 0.08);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.3, now + idx * 0.08 + 0.07);
+        gain.gain.setValueAtTime(0.09, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.075);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.08);
+      });
+    } catch (e) {}
+  },
+
+  playSpringRelease(stiffnessFactor = 1.0) {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      const baseFreq = 110 * Math.max(0.5, Math.min(2.0, stiffnessFactor));
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.45, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.9, now + 0.42);
+      gain.gain.setValueAtTime(0.11, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.46);
+    } catch (e) {}
+  },
+
+  playErrorBump() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(135, now);
+      osc.frequency.linearRampToValueAtTime(92, now + 0.12);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.14);
+    } catch (e) {}
+  }
 };
 
-let state = { studentName: '', selectedLab: null, currentQuestionIndex: 0, pretestAnswers: [], posttestAnswers: [] };
-const chatMessages = document.getElementById('chat-messages');
-const inputArea = document.getElementById('chat-input-area');
+const ErrorAndHistoryManager = {
+  undoStackOptics: [],
+  undoStackSprings: [],
+  toastTimer: null,
 
-function addMsg(text, sender) {
-    const d = document.createElement('div');
-    d.className = `message ${sender}`;
-    d.innerText = text;
-    chatMessages.appendChild(d);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+  showToast(message, isWarning = false) {
+    const el = document.getElementById('toastBanner');
+    if (!el) return;
+    el.textContent = message;
+    el.style.borderColor = isWarning ? '#f59e0b' : '#38bdf8';
+    el.style.borderLeftColor = isWarning ? '#f59e0b' : '#38bdf8';
+    el.classList.remove('hidden');
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      el.classList.add('hidden');
+    }, 3200);
+  },
 
-function init() {
-    addMsg("¡Hola! Soy tu asistente de laboratorio. ¿Cuál es tu nombre completo?", 'bot');
-    const c = document.createElement('div');
-    c.className = 'options-container';
-    const i = document.createElement('input');
-    i.type = 'text'; i.placeholder = 'Nombre aquí...';
-    const b = document.createElement('button');
-    b.innerText = 'Empezar'; b.className = 'btn';
-    b.onclick = () => { if(i.value.trim()){ state.studentName = i.value.trim(); addMsg(state.studentName, 'user'); selectLab(); }};
-    c.append(i, b); inputArea.append(c);
-}
-
-function selectLab() {
-    inputArea.innerHTML = '';
-    addMsg(`Hola ${state.studentName}, selecciona el laboratorio de hoy:`, 'bot');
-    const c = document.createElement('div');
-    c.className = 'options-container';
-    for(let id in laboratorios){
-        const b = document.createElement('button');
-        b.className = 'btn'; b.innerText = laboratorios[id].name;
-        b.onclick = () => { state.selectedLab = laboratorios[id]; emailjs.init(state.selectedLab.publicKey); addMsg(state.selectedLab.name, 'user'); runPre(); };
-        c.append(b);
+  pushOpticsSnapshot(placedPieces) {
+    const snap = JSON.stringify(placedPieces);
+    if (
+      this.undoStackOptics.length === 0 ||
+      this.undoStackOptics[this.undoStackOptics.length - 1] !== snap
+    ) {
+      this.undoStackOptics.push(snap);
+      if (this.undoStackOptics.length > 30) this.undoStackOptics.shift();
     }
-    inputArea.append(c);
-}
+    this.updateUndoButton();
+  },
 
-function runPre() {
-    inputArea.innerHTML = '';
-    const lab = state.selectedLab;
-    if(state.currentQuestionIndex >= lab.pretest.length){
-        addMsg("¡Pretest completado! Pasamos al Postest.", 'bot');
-        sendPre(); state.currentQuestionIndex = 0; runPost(); return;
+  popOpticsSnapshot() {
+    if (this.undoStackOptics.length === 0) return null;
+    const snap = this.undoStackOptics.pop();
+    this.updateUndoButton();
+    return JSON.parse(snap);
+  },
+
+  pushSpringsSnapshot(stateObj) {
+    const snap = JSON.stringify(stateObj);
+    if (
+      this.undoStackSprings.length === 0 ||
+      this.undoStackSprings[this.undoStackSprings.length - 1] !== snap
+    ) {
+      this.undoStackSprings.push(snap);
+      if (this.undoStackSprings.length > 25) this.undoStackSprings.shift();
     }
-    const q = lab.pretest[state.currentQuestionIndex];
-    addMsg(q.q, 'bot');
-    const c = document.createElement('div');
-    c.className = 'options-container';
-    q.options.forEach(o => {
-        const b = document.createElement('button'); b.className = 'btn'; b.innerText = o;
-        b.onclick = () => { state.pretestAnswers.push({q: q.q, a: o.charAt(0)}); addMsg(o, 'user'); state.currentQuestionIndex++; runPre(); };
-        c.append(b);
+    this.updateUndoButton();
+  },
+
+  popSpringsSnapshot() {
+    if (this.undoStackSprings.length === 0) return null;
+    const snap = this.undoStackSprings.pop();
+    this.updateUndoButton();
+    return JSON.parse(snap);
+  },
+
+  updateUndoButton() {
+    const btn = document.getElementById('btnUndo');
+    if (!btn || typeof SimState === 'undefined') return;
+    if (SimState.activeChamber === 1) {
+      btn.disabled = this.undoStackOptics.length === 0;
+    } else if (SimState.activeChamber === 2) {
+      btn.disabled = this.undoStackSprings.length === 0;
+    } else {
+      btn.disabled = true;
+    }
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 7: CONTROL DE ESTADOS Y DESBLOQUEOS (07_state_controller.js)
+// ============================================================================
+
+const SimState = {
+  // 'START' | 'CHAMBER_1' | 'TRANSITION_1_2' | 'CHAMBER_2' | 'TRANSITION_2_3' | 'CHAMBER_3'
+  mode: 'START',
+  activeChamber: 0,
+  enigma1Solved: false,
+  enigma2Solved: false,
+  transition1Seen: false,
+  transition2Seen: false,
+  devMode: false,
+  showAcrylicCover: true,
+  snapToRails: true,
+  scientificPanelOpen: false,
+  scientificTab: 'optica',
+  hintLevelUnlocked: { 1: 0, 2: 0 },
+
+  saveProgress() {
+    try {
+      const payload = {
+        enigma1Solved: this.enigma1Solved,
+        enigma2Solved: this.enigma2Solved,
+        transition1Seen: this.transition1Seen,
+        transition2Seen: this.transition2Seen,
+        activeChamber: this.activeChamber
+      };
+      localStorage.setItem('caja_enigmas_fisicos_v1', JSON.stringify(payload));
+    } catch (e) {}
+  },
+
+  loadProgress() {
+    try {
+      const raw = localStorage.getItem('caja_enigmas_fisicos_v1');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      this.enigma1Solved = !!data.enigma1Solved;
+      this.enigma2Solved = !!data.enigma2Solved;
+      this.transition1Seen = !!data.transition1Seen;
+      this.transition2Seen = !!data.transition2Seen;
+      return this.enigma1Solved || this.enigma2Solved || data.activeChamber > 0;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  clearSavedProgress() {
+    try {
+      localStorage.removeItem('caja_enigmas_fisicos_v1');
+    } catch (e) {}
+  },
+
+  enterChamber(chamberNum, forceByDev = false) {
+    if (chamberNum === 2 && !this.enigma1Solved && !this.devMode && !forceByDev) {
+      ErrorAndHistoryManager.showToast(
+        'Módulo II bloqueado físicamente: activa primero las 4 fotorresistencias del Módulo I (o activa Modo Desarrollo).',
+        true
+      );
+      SoundEngine.playErrorBump();
+      return;
+    }
+    if (chamberNum === 3 && !this.enigma2Solved && !this.devMode && !forceByDev) {
+      ErrorAndHistoryManager.showToast(
+        'Módulo III bloqueado físicamente: supera primero el mecanismo elástico del Módulo II (o activa Modo Desarrollo).',
+        true
+      );
+      SoundEngine.playErrorBump();
+      return;
+    }
+
+    this.activeChamber = chamberNum;
+    if (chamberNum === 0) {
+      this.mode = 'START';
+    } else if (chamberNum === 1) {
+      this.mode = 'CHAMBER_1';
+      this.scientificTab = 'optica';
+    } else if (chamberNum === 2) {
+      this.mode = 'CHAMBER_2';
+      this.scientificTab = 'elasticidad';
+    } else if (chamberNum === 3) {
+      this.mode = 'CHAMBER_3';
+      this.scientificTab = 'arquitectura';
+    }
+    this.syncUI();
+    this.saveProgress();
+  },
+
+  triggerTransition1To2() {
+    this.enigma1Solved = true;
+    this.mode = 'TRANSITION_1_2';
+    this.activeChamber = 1;
+    SoundEngine.playMechanicalLatch();
+    CameraTransitionSystem.startTransition1To2();
+    this.syncUI();
+    this.saveProgress();
+  },
+
+  triggerTransition2To3() {
+    this.enigma2Solved = true;
+    this.mode = 'TRANSITION_2_3';
+    this.activeChamber = 2;
+    SoundEngine.playMechanicalLatch();
+    CameraTransitionSystem.startTransition2To3();
+    this.syncUI();
+    this.saveProgress();
+  },
+
+  syncUI() {
+    const startOverlay = document.getElementById('startOverlay');
+    const invDock = document.getElementById('inventoryDock');
+    const hudLeft = document.getElementById('viewportHudLeft');
+    const hudRight = document.getElementById('viewportHudRight');
+    const btnSkipTrans = document.getElementById('btnSkipTransition');
+
+    if (startOverlay) {
+      startOverlay.classList.toggle('hidden', this.mode !== 'START');
+    }
+    if (invDock) {
+      invDock.style.display = (this.mode === 'CHAMBER_1' || this.mode === 'CHAMBER_2') ? 'flex' : 'none';
+    }
+    if (hudLeft) {
+      hudLeft.style.display = this.mode === 'START' ? 'none' : 'flex';
+    }
+    if (hudRight) {
+      hudRight.style.display = this.mode === 'START' ? 'none' : 'flex';
+    }
+    if (btnSkipTrans) {
+      const inTrans = this.mode === 'TRANSITION_1_2' || this.mode === 'TRANSITION_2_3';
+      btnSkipTrans.style.display = inTrans ? 'inline-flex' : 'none';
+    }
+
+    // Update top stepper pills
+    const pills = [
+      { id: 'pillStart', ch: 0, unlocked: true, done: false },
+      { id: 'pillCh1', ch: 1, unlocked: true, done: this.enigma1Solved },
+      { id: 'pillCh2', ch: 2, unlocked: this.enigma1Solved || this.devMode, done: this.enigma2Solved },
+      { id: 'pillCh3', ch: 3, unlocked: this.enigma2Solved || this.devMode, done: false }
+    ];
+    pills.forEach(p => {
+      const el = document.getElementById(p.id);
+      if (!el) return;
+      el.classList.toggle('active', this.activeChamber === p.ch && this.mode !== 'START' || (p.ch === 0 && this.mode === 'START'));
+      el.classList.toggle('completed', p.done);
+      el.classList.toggle('locked', !p.unlocked);
     });
-    inputArea.append(c);
-}
 
-function runPost() {
-    inputArea.innerHTML = '';
-    const lab = state.selectedLab;
-    if(state.currentQuestionIndex >= lab.posttest.length){
-        sendPost(); addMsg("Has terminado con éxito. Ya puedes cerrar esta ventana.", 'bot'); return;
+    const devBtn = document.getElementById('btnDevMode');
+    if (devBtn) {
+      devBtn.classList.toggle('active-toggle', this.devMode);
+      devBtn.textContent = this.devMode ? 'Modo Lab/Dev: ON' : 'Modo Lab/Dev: OFF';
     }
-    const q = lab.posttest[state.currentQuestionIndex];
-    addMsg(q, 'bot');
-    const t = document.createElement('textarea');
-    const b = document.createElement('button');
-    b.innerText = 'Enviar Respuesta'; b.className = 'btn';
-    b.onclick = () => { if(t.value.trim()){ state.posttestAnswers.push({q: q, a: t.value.trim()}); addMsg(t.value.trim(), 'user'); state.currentQuestionIndex++; runPost(); }};
-    inputArea.append(t, b);
-}
 
-function sendPre() {
-    const lab = state.selectedLab;
-    const p = { student_name: state.studentName, lab_name: lab.name, 
-                q1_ans: state.pretestAnswers[0].a, q2_ans: state.pretestAnswers[1].a, 
-                q3_ans: state.pretestAnswers[2].a, q4_ans: state.pretestAnswers[3].a, q5_ans: state.pretestAnswers[4].a };
-    emailjs.send(lab.serviceId, lab.pretestTemplate, p);
-}
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+      InteractionSystem.updateInspectorUI();
+    }
+    if (typeof ScientificPanelUI !== 'undefined') {
+      ScientificPanelUI.renderContent();
+    }
+    ErrorAndHistoryManager.updateUndoButton();
+  }
+};
 
-function sendPost() {
-    const lab = state.selectedLab;
-    const p = { student_name: state.studentName, lab_name: lab.name, 
-                qa_ans: state.posttestAnswers[0].a, qb_ans: state.posttestAnswers[1].a, 
-                qc_ans: state.posttestAnswers[2].a, qd_ans: state.posttestAnswers[3].a, qe_ans: state.posttestAnswers[4].a };
-    emailjs.send(lab.serviceId, lab.posttestTemplate, p);
-}
 
-window.onload = init;
-</script>
+// ============================================================================
+// MÓDULO 5: COMPONENTES ÓPTICOS Y CUATRO FOTORRESISTENCIAS (05_optical_components_sensors.js)
+// ============================================================================
+
+const OpticsModule = {
+  boardWidth: 900,
+  boardHeight: 560,
+
+  // Fuente luminosa blanca colimada fija e inmóvil
+  source: {
+    x: 68,
+    y: 280,
+    dx: 1,
+    dy: 0,
+    beamHalfWidth: 8,
+    rayCount: 9,
+    naturalDivergenceDeg: 0.55,
+    totalPower: 1.0
+  },
+
+  // Paredes internas con grosor visible (x, y, w, h)
+  walls: [
+    // Marco perimetral de aluminio anodizado de la Cámara I
+    { x: 14, y: 14, w: 872, h: 16, label: 'Pared Superior' },
+    { x: 14, y: 530, w: 872, h: 16, label: 'Pared Inferior' },
+    { x: 14, y: 14, w: 16, h: 532, label: 'Pared Izquierda' },
+    { x: 870, y: 14, w: 16, h: 532, label: 'Pared Derecha (Compuerta I-II)' },
+
+    // Habitación 1 (Superior Izquierda - aloja LDR-1 en (260, 76))
+    { x: 155, y: 30, w: 14, h: 170 },
+    { x: 155, y: 186, w: 68, h: 14 },   // Ventana óptica x = 223..297 centrada en x=260
+    { x: 297, y: 186, w: 68, h: 14 },
+    { x: 365, y: 30, w: 14, h: 170 },
+
+    // Habitación 2 (Inferior Izquierda - aloja LDR-2 en (210, 455))
+    { x: 155, y: 356, w: 210, h: 14 },  // Techo opaco que impide paso vertical directo a LDR-2
+    { x: 155, y: 356, w: 14, h: 174 },
+    { x: 365, y: 356, w: 14, h: 64 },   // Ventana lateral y = 420..490 centrada en y=455
+    { x: 365, y: 490, w: 14, h: 40 },
+
+    // Habitación 3 (Superior Derecha - aloja LDR-3 en (815, 105))
+    { x: 510, y: 30, w: 14, h: 170 },
+    { x: 510, y: 186, w: 28, h: 14 },   // Ventana vertical x = 538..612 centrada en x=575
+    { x: 612, y: 186, w: 258, h: 14 },  // Piso opaco bajo el corredor superior derecho
+
+    // Habitación 4 (Inferior Derecha / Cámara Espectral - aloja LDR-4 en (820, 396))
+    { x: 560, y: 356, w: 14, h: 174 },  // Pared divisoria inferior central
+    { x: 560, y: 356, w: 148, h: 14 },  // Deja ventana diagonal para haz dispersado x = 708..870
+    { x: 755, y: 245, w: 115, h: 14 }   // Deflector derecho que bloquea el haz horizontal directo en y=280 si pasa de x=755 sin desviarse
+  ],
+
+  // Rieles y nodos de anclaje sugeridos en el banco óptico (no obligatorios, ayudan a alinear)
+  railNodes: [
+    { x: 165, y: 280, label: 'Riel Óptico R1' },
+    { x: 260, y: 280, label: 'Riel Óptico R2' },
+    { x: 260, y: 140, label: 'Riel Óptico R3' },
+    { x: 430, y: 280, label: 'Riel Óptico R4' },
+    { x: 430, y: 455, label: 'Riel Óptico R5' },
+    { x: 320, y: 455, label: 'Riel Óptico R6' },
+    { x: 575, y: 280, label: 'Riel Óptico R7' },
+    { x: 575, y: 105, label: 'Riel Óptico R8' },
+    { x: 700, y: 105, label: 'Riel Óptico R9' },
+    { x: 690, y: 280, label: 'Riel Espectral R10' },
+    { x: 690, y: 430, label: 'Riel Óptico R11' }
+  ],
+
+  // Cuatro fotorresistencias (LDR-1 a LDR-4) en habitaciones distintas
+  sensors: [
+    {
+      id: 'LDR-1',
+      room: 'Cámara 1A (Norte)',
+      x: 260,
+      y: 76,
+      nx: 0,
+      ny: 1,
+      radius: 22,
+      incidentPower: 0,
+      spectralHits: 0,
+      resistanceKOhm: 120.0,
+      voltageOut: 0.86,
+      state: 'OFF', // 'OFF' | 'PARTIAL' | 'ACTIVE'
+      wirePath: [{ x: 260, y: 54 }, { x: 260, y: 36 }, { x: 848, y: 36 }, { x: 848, y: 215 }]
+    },
+    {
+      id: 'LDR-2',
+      room: 'Cámara 1B (Suroeste)',
+      x: 210,
+      y: 455,
+      nx: 1,
+      ny: 0,
+      radius: 22,
+      incidentPower: 0,
+      spectralHits: 0,
+      resistanceKOhm: 120.0,
+      voltageOut: 0.86,
+      state: 'OFF',
+      wirePath: [{ x: 188, y: 455 }, { x: 175, y: 455 }, { x: 175, y: 522 }, { x: 848, y: 522 }, { x: 848, y: 235 }]
+    },
+    {
+      id: 'LDR-3',
+      room: 'Cámara 1C (Noreste)',
+      x: 815,
+      y: 105,
+      nx: -1,
+      ny: 0,
+      radius: 22,
+      incidentPower: 0,
+      spectralHits: 0,
+      resistanceKOhm: 120.0,
+      voltageOut: 0.86,
+      state: 'OFF',
+      wirePath: [{ x: 837, y: 105 }, { x: 856, y: 105 }, { x: 856, y: 205 }]
+    },
+    {
+      id: 'LDR-4',
+      room: 'Cámara 1D (Sureste Espectral)',
+      x: 820,
+      y: 396,
+      nx: -0.76,
+      ny: -0.65,
+      radius: 26,
+      incidentPower: 0,
+      spectralHits: 0,
+      resistanceKOhm: 120.0,
+      voltageOut: 0.86,
+      state: 'OFF',
+      wirePath: [{ x: 842, y: 396 }, { x: 856, y: 396 }, { x: 856, y: 242 }]
+    }
+  ],
+
+  // Circuito de control electrónico (Batería Vcc=5V, divisores de tensión y compuerta lógica AND)
+  controlCircuit: {
+    vcc: 5.0,
+    rFixedKOhm: 25.0,
+    rDarkKOhm: 120.0,
+    rMinKOhm: 1.5,
+    pRef: 0.018,
+    vThreshold: 2.40,
+    vPartial: 1.35,
+    andGateActive: false,
+    holdTimeRequired: 1.15,
+    currentHoldTime: 0,
+    gateUnlocked: false,
+    gateOpenProgress: 0
+  },
+
+  // Catálogo de componentes en el inventario inferior
+  inventoryCatalog: [
+    {
+      type: 'beamsplitter',
+      name: 'Divisor de Haz 50/50',
+      shortName: 'Divisor Haz',
+      totalCount: 3,
+      defaultAngle: -45,
+      radius: 28,
+      description: 'Lámina semirreflectante dieléctrica: refleja el 48% del haz y transmite el 48% simultáneamente.'
+    },
+    {
+      type: 'mirror',
+      name: 'Espejo Plano 1ª Sup.',
+      shortName: 'Espejo Plano',
+      totalCount: 3,
+      defaultAngle: -45,
+      radius: 28,
+      description: 'Superficie aluminizada de alta reflectancia (94%). Cumple θ_incidencia = θ_reflexión.'
+    },
+    {
+      type: 'prism',
+      name: 'Prisma Dispersivo BK7',
+      shortName: 'Prisma BK7',
+      totalCount: 1,
+      defaultAngle: 48,
+      radius: 36,
+      description: 'Prisma equilátero transparente: refracta según la ley de Snell y separa la luz blanca en su espectro.'
+    },
+    {
+      type: 'lens_conv',
+      name: 'Lente Convergente',
+      shortName: 'Lente Conv.',
+      totalCount: 1,
+      defaultAngle: 90,
+      radius: 30,
+      focalLength: 165,
+      description: 'Lente biconvexa (f > 0): hace converger el haz colimado concentrando la energía óptica.'
+    },
+    {
+      type: 'lens_div',
+      name: 'Lente Divergente',
+      shortName: 'Lente Div.',
+      totalCount: 1,
+      defaultAngle: 90,
+      radius: 30,
+      focalLength: -125,
+      description: 'Lente bicóncava (f < 0): separa los rayos del haz disminuyendo la densidad de potencia por área.'
+    }
+  ],
+
+  // Piezas actualmente instaladas por el usuario en el tablero (inicia vacío como exige la especificación)
+  placedPieces: [],
+  selectedPieceId: null,
+  nextIdCounter: 1,
+
+  resetBoard() {
+    this.placedPieces = [];
+    this.selectedPieceId = null;
+    this.controlCircuit.andGateActive = false;
+    this.controlCircuit.currentHoldTime = 0;
+    this.controlCircuit.gateUnlocked = false;
+    this.controlCircuit.gateOpenProgress = 0;
+    ErrorAndHistoryManager.undoStackOptics = [];
+    ErrorAndHistoryManager.updateUndoButton();
+    RayTracerEngine.recalculate();
+  },
+
+  getRemainingCount(type) {
+    const cat = this.inventoryCatalog.find(c => c.type === type);
+    if (!cat) return 0;
+    const used = this.placedPieces.filter(p => p.type === type).length;
+    return Math.max(0, cat.totalCount - used);
+  },
+
+  isPositionValid(x, y, radius, ignorePieceId = null) {
+    // Check board bounds
+    if (x - radius < 32 || x + radius > this.boardWidth - 34) return false;
+    if (y - radius < 32 || y + radius > this.boardHeight - 34) return false;
+
+    // Avoid overlapping fixed light source housing
+    if (x < 118 && Math.abs(y - this.source.y) < 42) return false;
+
+    // Avoid overlapping the 4 LDR sensors
+    for (const s of this.sensors) {
+      if (Math.hypot(x - s.x, y - s.y) < radius + s.radius + 4) return false;
+    }
+
+    // Avoid overlapping walls (circle-AABB collision)
+    const pad = Math.min(radius * 0.55, 15);
+    for (const w of this.walls) {
+      const closestX = Math.max(w.x, Math.min(x, w.x + w.w));
+      const closestY = Math.max(w.y, Math.min(y, w.y + w.h));
+      const dist = Math.hypot(x - closestX, y - closestY);
+      if (dist < pad) return false;
+    }
+
+    // Avoid overlapping other placed pieces
+    for (const p of this.placedPieces) {
+      if (p.id === ignorePieceId) continue;
+      if (Math.hypot(x - p.x, y - p.y) < (radius + p.radius) * 0.72) return false;
+    }
+    return true;
+  },
+
+  applySnap(x, y) {
+    if (!SimState.snapToRails) return { x, y, snapped: false };
+    for (const node of this.railNodes) {
+      if (Math.hypot(x - node.x, y - node.y) <= 22) {
+        return { x: node.x, y: node.y, snapped: true, label: node.label };
+      }
+    }
+    return { x, y, snapped: false };
+  },
+
+  updateElectricalCircuit(dt) {
+    const cc = this.controlCircuit;
+    let activeCount = 0;
+
+    for (const s of this.sensors) {
+      const P = s.incidentPower;
+      if (P <= 0.0005) {
+        s.resistanceKOhm = cc.rDarkKOhm;
+      } else {
+        s.resistanceKOhm =
+          cc.rMinKOhm +
+          (cc.rDarkKOhm - cc.rMinKOhm) / (1.0 + Math.pow(P / cc.pRef, 1.35));
+      }
+      s.voltageOut = cc.vcc * (cc.rFixedKOhm / (s.resistanceKOhm + cc.rFixedKOhm));
+
+      if (s.voltageOut >= cc.vThreshold) {
+        s.state = 'ACTIVE';
+        activeCount++;
+      } else if (s.voltageOut >= cc.vPartial) {
+        s.state = 'PARTIAL';
+      } else {
+        s.state = 'OFF';
+      }
+    }
+
+    cc.andGateActive = activeCount === 4;
+
+    if (cc.andGateActive && !cc.gateUnlocked) {
+      cc.currentHoldTime += dt;
+      if (cc.currentHoldTime >= cc.holdTimeRequired) {
+        cc.gateUnlocked = true;
+        ErrorAndHistoryManager.showToast(
+          '¡4 fotorresistencias activadas simultáneamente! Compuerta lógica AND = 1 → Liberando seguro mecánico.'
+        );
+        setTimeout(() => {
+          if (SimState.mode === 'CHAMBER_1') {
+            SimState.triggerTransition1To2();
+          }
+        }, 900);
+      }
+    } else if (!cc.andGateActive && !cc.gateUnlocked) {
+      cc.currentHoldTime = Math.max(0, cc.currentHoldTime - dt * 2.0);
+    }
+
+    if (cc.gateUnlocked) {
+      cc.gateOpenProgress = Math.min(1, cc.gateOpenProgress + dt * 1.4);
+    }
+  },
+
+  // Método de verificación/demostración en Modo Laboratorio para comprobar solución física real
+  loadVerifiedOpticalSolution() {
+    ErrorAndHistoryManager.pushOpticsSnapshot(this.placedPieces);
+    this.placedPieces = [
+      { id: 'opt_1', type: 'lens_conv', x: 165, y: 280, angle: 90, radius: 30 },
+      { id: 'opt_2', type: 'beamsplitter', x: 260, y: 280, angle: -45, radius: 28 },
+      { id: 'opt_3', type: 'beamsplitter', x: 430, y: 280, angle: 45, radius: 28 },
+      { id: 'opt_4', type: 'mirror', x: 430, y: 455, angle: -45, radius: 28 },
+      { id: 'opt_5', type: 'beamsplitter', x: 575, y: 280, angle: -45, radius: 28 },
+      { id: 'opt_6', type: 'mirror', x: 575, y: 105, angle: -45, radius: 28 },
+      { id: 'opt_7', type: 'prism', x: 690, y: 280, angle: 48, radius: 36 }
+    ];
+    this.selectedPieceId = 'opt_7';
+    this.controlCircuit.currentHoldTime = 0;
+    this.controlCircuit.gateUnlocked = false;
+    RayTracerEngine.recalculate();
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+      InteractionSystem.updateInspectorUI();
+    }
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 4: MOTOR DE TRAZADO DE RAYOS ÓPTICOS (04_ray_tracer.js)
+// ============================================================================
+
+const RayTracerEngine = {
+  tracedSegments: [],
+  hitGlowPoints: [],
+  maxBounces: 14,
+  minRayPower: 0.0004,
+
+  // 5 bandas espectrales para representar la dispersión cromática (Ley de Snell + Cauchy)
+  spectralBands: [
+    { name: 'Rojo (650 nm)', lambda: 650, n: 1.510, color: '#ff3b30', rgb: [255, 59, 48] },
+    { name: 'Ámbar (590 nm)', lambda: 590, n: 1.532, color: '#ff9500', rgb: [255, 149, 0] },
+    { name: 'Verde (530 nm)', lambda: 530, n: 1.555, color: '#34c759', rgb: [52, 199, 89] },
+    { name: 'Cian (480 nm)', lambda: 480, n: 1.578, color: '#00c7be', rgb: [0, 199, 190] },
+    { name: 'Violeta (420 nm)', lambda: 420, n: 1.602, color: '#af52de', rgb: [175, 82, 222] }
+  ],
+
+  recalculate() {
+    this.tracedSegments = [];
+    this.hitGlowPoints = [];
+
+    // Reiniciar potencia recibida en cada una de las 4 fotorresistencias
+    for (const s of OpticsModule.sensors) {
+      s.incidentPower = 0;
+      s.spectralHits = 0;
+    }
+
+    const src = OpticsModule.source;
+    const N = src.rayCount;
+    const rayInitialPower = src.totalPower / N;
+
+    for (let i = 0; i < N; i++) {
+      const frac = N > 1 ? (i / (N - 1)) * 2 - 1 : 0; // [-1 .. +1]
+      const offsetY = frac * src.beamHalfWidth;
+      const divAngleRad = (frac * src.naturalDivergenceDeg * Math.PI) / 180;
+      const dx = Math.cos(divAngleRad);
+      const dy = Math.sin(divAngleRad);
+
+      this.traceSingleRay({
+        ox: src.x,
+        oy: src.y + offsetY,
+        dx,
+        dy,
+        power: rayInitialPower,
+        wavelengthBand: null, // null = luz blanca compuesta
+        depth: 0
+      });
+    }
+  },
+
+  raySegmentIntersect(ox, oy, dx, dy, x1, y1, x2, y2) {
+    const vx = x2 - x1;
+    const vy = y2 - y1;
+    const denom = dx * vy - dy * vx;
+    if (Math.abs(denom) < 1e-8) return null;
+    const t = ((x1 - ox) * vy - (y1 - oy) * vx) / denom;
+    const u = ((x1 - ox) * dy - (y1 - oy) * dx) / denom;
+    if (t > 0.6 && u >= 0.0 && u <= 1.0) {
+      return {
+        t,
+        u,
+        x: ox + t * dx,
+        y: oy + t * dy
+      };
+    }
+    return null;
+  },
+
+  reflectVector(dx, dy, nx, ny) {
+    const dot = dx * nx + dy * ny;
+    return {
+      dx: dx - 2 * dot * nx,
+      dy: dy - 2 * dot * ny
+    };
+  },
+
+  snellRefractVector(dx, dy, nx, ny, n1, n2) {
+    let cosI = -(dx * nx + dy * ny);
+    let nxx = nx;
+    let nyy = ny;
+    if (cosI < 0) {
+      nxx = -nx;
+      nyy = -ny;
+      cosI = -cosI;
+    }
+    const eta = n1 / n2;
+    const k = 1.0 - eta * eta * (1.0 - cosI * cosI);
+    if (k < 0) {
+      // Reflexión interna total
+      const refl = this.reflectVector(dx, dy, nxx, nyy);
+      return { dx: refl.dx, dy: refl.dy, tir: true };
+    }
+    const cosT = Math.sqrt(k);
+    const rx = eta * dx + (eta * cosI - cosT) * nxx;
+    const ry = eta * dy + (eta * cosI - cosT) * nyy;
+    const len = Math.hypot(rx, ry) || 1;
+    return { dx: rx / len, dy: ry / len, tir: false };
+  },
+
+  getPrismVertices(piece) {
+    const rad = (piece.angle * Math.PI) / 180;
+    const R = piece.radius;
+    const verts = [];
+    for (let k = 0; k < 3; k++) {
+      const a = rad + (k * 2 * Math.PI) / 3;
+      verts.push({
+        x: piece.x + R * Math.cos(a),
+        y: piece.y + R * Math.sin(a)
+      });
+    }
+    return verts;
+  },
+
+  traceSingleRay(ray) {
+    if (ray.depth > this.maxBounces || ray.power < this.minRayPower) return;
+
+    let closest = null;
+
+    // 1. Intersección con paredes opacas
+    for (const w of OpticsModule.walls) {
+      const edges = [
+        [w.x, w.y, w.x + w.w, w.y],
+        [w.x + w.w, w.y, w.x + w.w, w.y + w.h],
+        [w.x + w.w, w.y + w.h, w.x, w.y + w.h],
+        [w.x, w.y + w.h, w.x, w.y]
+      ];
+      for (const [x1, y1, x2, y2] of edges) {
+        const hit = this.raySegmentIntersect(ray.ox, ray.oy, ray.dx, ray.dy, x1, y1, x2, y2);
+        if (hit && (!closest || hit.t < closest.t)) {
+          closest = { ...hit, hitType: 'wall' };
+        }
+      }
+    }
+
+    // 2. Intersección con las 4 fotorresistencias (LDR-1 a LDR-4)
+    for (const s of OpticsModule.sensors) {
+      // Representamos la superficie fotosensible como un segmento perpendicular a su normal + disco receptor
+      const tx = -s.ny;
+      const ty = s.nx;
+      const x1 = s.x - tx * s.radius;
+      const y1 = s.y - ty * s.radius;
+      const x2 = s.x + tx * s.radius;
+      const y2 = s.y + ty * s.radius;
+      const hit = this.raySegmentIntersect(ray.ox, ray.oy, ray.dx, ray.dy, x1, y1, x2, y2);
+      if (hit && (!closest || hit.t < closest.t)) {
+        closest = { ...hit, hitType: 'sensor', sensor: s };
+      }
+    }
+
+    // 3. Intersección con componentes ópticos instalados
+    for (const piece of OpticsModule.placedPieces) {
+      if (
+        piece.type === 'mirror' ||
+        piece.type === 'beamsplitter' ||
+        piece.type === 'lens_conv' ||
+        piece.type === 'lens_div'
+      ) {
+        const rad = (piece.angle * Math.PI) / 180;
+        const tx = Math.cos(rad);
+        const ty = Math.sin(rad);
+        const nx = -ty;
+        const ny = tx;
+        const x1 = piece.x - tx * piece.radius;
+        const y1 = piece.y - ty * piece.radius;
+        const x2 = piece.x + tx * piece.radius;
+        const y2 = piece.y + ty * piece.radius;
+        const hit = this.raySegmentIntersect(ray.ox, ray.oy, ray.dx, ray.dy, x1, y1, x2, y2);
+        if (hit && (!closest || hit.t < closest.t)) {
+          const signedOffset = (hit.x - piece.x) * tx + (hit.y - piece.y) * ty;
+          closest = {
+            ...hit,
+            hitType: piece.type,
+            piece,
+            tx,
+            ty,
+            nx,
+            ny,
+            signedOffset
+          };
+        }
+      } else if (piece.type === 'prism') {
+        const verts = this.getPrismVertices(piece);
+        for (let k = 0; k < 3; k++) {
+          const v1 = verts[k];
+          const v2 = verts[(k + 1) % 3];
+          const hit = this.raySegmentIntersect(ray.ox, ray.oy, ray.dx, ray.dy, v1.x, v1.y, v2.x, v2.y);
+          if (hit && (!closest || hit.t < closest.t)) {
+            const ex = v2.x - v1.x;
+            const ey = v2.y - v1.y;
+            const el = Math.hypot(ex, ey) || 1;
+            closest = {
+              ...hit,
+              hitType: 'prism',
+              piece,
+              nx: -ey / el,
+              ny: ex / el,
+              verts
+            };
+          }
+        }
+      }
+    }
+
+    if (!closest) return;
+
+    // Registrar segmento trazado para renderizado
+    this.tracedSegments.push({
+      x1: ray.ox,
+      y1: ray.oy,
+      x2: closest.x,
+      y2: closest.y,
+      power: ray.power,
+      band: ray.wavelengthBand
+    });
+
+    if (closest.hitType === 'wall') {
+      this.hitGlowPoints.push({
+        x: closest.x,
+        y: closest.y,
+        power: ray.power,
+        band: ray.wavelengthBand
+      });
+      return;
+    }
+
+    if (closest.hitType === 'sensor') {
+      closest.sensor.incidentPower += ray.power;
+      if (ray.wavelengthBand) closest.sensor.spectralHits++;
+      this.hitGlowPoints.push({
+        x: closest.x,
+        y: closest.y,
+        power: ray.power * 1.4,
+        band: ray.wavelengthBand
+      });
+      return;
+    }
+
+    if (closest.hitType === 'mirror') {
+      const refl = this.reflectVector(ray.dx, ray.dy, closest.nx, closest.ny);
+      this.traceSingleRay({
+        ox: closest.x,
+        oy: closest.y,
+        dx: refl.dx,
+        dy: refl.dy,
+        power: ray.power * 0.94,
+        wavelengthBand: ray.wavelengthBand,
+        depth: ray.depth + 1
+      });
+      return;
+    }
+
+    if (closest.hitType === 'beamsplitter') {
+      // Componente reflejada (48%) + componente transmitida (48%) -> Conservación de energía (96% < 100%)
+      const refl = this.reflectVector(ray.dx, ray.dy, closest.nx, closest.ny);
+      this.traceSingleRay({
+        ox: closest.x,
+        oy: closest.y,
+        dx: refl.dx,
+        dy: refl.dy,
+        power: ray.power * 0.48,
+        wavelengthBand: ray.wavelengthBand,
+        depth: ray.depth + 1
+      });
+      this.traceSingleRay({
+        ox: closest.x,
+        oy: closest.y,
+        dx: ray.dx,
+        dy: ray.dy,
+        power: ray.power * 0.48,
+        wavelengthBand: ray.wavelengthBand,
+        depth: ray.depth + 1
+      });
+      return;
+    }
+
+    if (closest.hitType === 'lens_conv' || closest.hitType === 'lens_div') {
+      // Modelo paraxial delgado: desviación angular Δθ = -atan(h / f) respecto al eje óptico
+      const f = closest.hitType === 'lens_conv' ? 680 : -110;
+      // Determinar sentido del eje óptico a favor de la propagación
+      let axisX = closest.nx;
+      let axisY = closest.ny;
+      if (ray.dx * axisX + ray.dy * axisY < 0) {
+        axisX = -axisX;
+        axisY = -axisY;
+      }
+      // Tangente orientada en mano derecha respecto al eje
+      const tangX = -axisY;
+      const tangY = axisX;
+      const h = (closest.x - closest.piece.x) * tangX + (closest.y - closest.piece.y) * tangY;
+      const inLat = ray.dx * tangX + ray.dy * tangY;
+      const inAx = Math.max(0.1, ray.dx * axisX + ray.dy * axisY);
+      const slopeOut = inLat / inAx - h / f;
+      const outX = axisX + slopeOut * tangX;
+      const outY = axisY + slopeOut * tangY;
+      const len = Math.hypot(outX, outY) || 1;
+
+      this.traceSingleRay({
+        ox: closest.x,
+        oy: closest.y,
+        dx: outX / len,
+        dy: outY / len,
+        power: ray.power * 0.95,
+        wavelengthBand: ray.wavelengthBand,
+        depth: ray.depth + 1
+      });
+      return;
+    }
+
+    if (closest.hitType === 'prism') {
+      // Si el rayo es blanco, se separa en las 5 bandas espectrales al entrar al prisma dispersivo
+      const bandsToTrace = ray.wavelengthBand ? [ray.wavelengthBand] : this.spectralBands;
+      const powerScale = ray.wavelengthBand ? 0.96 : 0.96 / this.spectralBands.length;
+
+      for (const band of bandsToTrace) {
+        const inside = this.snellRefractVector(
+          ray.dx,
+          ray.dy,
+          closest.nx,
+          closest.ny,
+          1.0,
+          band.n
+        );
+        // Buscar salida en las otras aristas del prisma
+        let exitHit = null;
+        const verts = closest.verts;
+        for (let k = 0; k < 3; k++) {
+          const v1 = verts[k];
+          const v2 = verts[(k + 1) % 3];
+          const h2 = this.raySegmentIntersect(
+            closest.x,
+            closest.y,
+            inside.dx,
+            inside.dy,
+            v1.x,
+            v1.y,
+            v2.x,
+            v2.y
+          );
+          if (h2 && (!exitHit || h2.t < exitHit.t)) {
+            const ex = v2.x - v1.x;
+            const ey = v2.y - v1.y;
+            const el = Math.hypot(ex, ey) || 1;
+            exitHit = { ...h2, nx: -ey / el, ny: ex / el };
+          }
+        }
+
+        if (exitHit) {
+          // Segmento interno dentro del cristal del prisma
+          this.tracedSegments.push({
+            x1: closest.x,
+            y1: closest.y,
+            x2: exitHit.x,
+            y2: exitHit.y,
+            power: ray.power * powerScale,
+            band
+          });
+          const outside = this.snellRefractVector(
+            inside.dx,
+            inside.dy,
+            exitHit.nx,
+            exitHit.ny,
+            band.n,
+            1.0
+          );
+          this.traceSingleRay({
+            ox: exitHit.x,
+            oy: exitHit.y,
+            dx: outside.dx,
+            dy: outside.dy,
+            power: ray.power * powerScale,
+            wavelengthBand: band,
+            depth: ray.depth + 1
+          });
+        }
+      }
+    }
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 6: MODELO DINÁMICO DE LOS RESORTES Y ELASTICIDAD (06_spring_dynamics.js)
+// ============================================================================
+
+const SpringsModule = {
+  boardWidth: 900,
+  boardHeight: 560,
+
+  // Acertijo físico oficial grabado en la placa de la Cámara II
+  riddleText:
+    '«Necesito un resorte que se estire al colocar una carga, almacene energía elástica y pueda recuperar su forma al retirarla. Además, debe permitir que el mecanismo alcance el seguro sin deformarse permanentemente. ¿Cuál elegirías?»',
+
+  // Posición de la torre de ensayo mecánico
+  tower: {
+    hookX: 540,
+    hookY: 112,
+    baseFreeLength: 138,
+    targetMinExtension: 94,
+    targetMaxExtension: 124,
+    hardStopExtension: 174
+  },
+
+  // Los 4 resortes con propiedades físicas y visuales diferenciadas
+  springs: [
+    {
+      id: 'A',
+      label: 'Resorte A',
+      subtitle: 'Acero Templado Grueso',
+      hintPlate: 'Espira gruesa de paso cerrado • Alta rigidez estructural',
+      wireThickness: 4.6,
+      coils: 11,
+      radius: 22,
+      freeLength0: 132,
+      plasticOffset: 0,
+      k: 3.25, // Muy rígido: Δy_eq = 120 / 3.25 = 36.9 px (no alcanza la zona 94..124 px)
+      damping: 0.22,
+      yieldExtension: 220,
+      colorPrimary: '#94a3b8',
+      colorHighlight: '#e2e8f0',
+      colorShadow: '#334155',
+      rackX: 112,
+      rackY: 190
+    },
+    {
+      id: 'B',
+      label: 'Resorte B',
+      subtitle: 'Aleación Fina de Paso Amplio',
+      hintPlate: 'Alambre muy delgado y espiras abiertas • Gran elongación ante cargas moderadas',
+      wireThickness: 1.7,
+      coils: 14,
+      radius: 19,
+      freeLength0: 138,
+      plasticOffset: 0,
+      k: 0.68, // Demasiado flexible: Δy_eq = 120 / 0.68 = 176 px (sobrepasa la zona y choca con el tope)
+      damping: 0.16,
+      yieldExtension: 240,
+      colorPrimary: '#64748b',
+      colorHighlight: '#cbd5e1',
+      colorShadow: '#1e293b',
+      rackX: 198,
+      rackY: 190
+    },
+    {
+      id: 'C',
+      label: 'Resorte C',
+      subtitle: 'Latón Recocido Dúctil',
+      hintPlate: 'Aleación blanda de bajo límite elástico • Sensible a fluencia plástica bajo carga',
+      wireThickness: 2.7,
+      coils: 12,
+      radius: 21,
+      freeLength0: 136,
+      plasticOffset: 0,
+      k: 1.85,
+      damping: 0.26,
+      yieldExtension: 42, // Supera su límite elástico bajo la carga y sufre deformación permanente (+56 px)
+      maxPlasticOffset: 56,
+      colorPrimary: '#d97706',
+      colorHighlight: '#fde68a',
+      colorShadow: '#78350f',
+      rackX: 284,
+      rackY: 190
+    },
+    {
+      id: 'D',
+      label: 'Resorte D',
+      subtitle: 'Acero Elástico Calibrado Cr-V',
+      hintPlate: 'Templado al aceite • Comportamiento lineal reversible y alto límite elástico',
+      wireThickness: 3.0,
+      coils: 12,
+      radius: 21,
+      freeLength0: 138,
+      plasticOffset: 0,
+      k: 1.10, // Elástico adecuado: Δy_eq = 120 / 1.10 = 109.1 px (dentro de [94..124] px) y recupera 100%
+      damping: 0.19,
+      yieldExtension: 190,
+      colorPrimary: '#38bdf8',
+      colorHighlight: '#e0f2fe',
+      colorShadow: '#0369a1',
+      rackX: 370,
+      rackY: 190
+    }
+  ],
+
+  // Estado interactivo del banco de ensayo en Cámara II
+  installedSpringId: null,
+  massAttached: false,
+  safetyLatchReleased: false,
+
+  // Variables dinámicas de la EDO (masa-resorte-amortiguador)
+  currentExtension: 0, // Δy respecto a freeLength0
+  velocityY: 0,
+  gravityForce: 120.0, // Fuerza equivalente mg en unidades de simulación
+  unloadedOscTime: 0,
+
+  // Posición de la masa en su bandeja cuando no está instalada
+  massTrayPos: { x: 240, y: 455, r: 28 },
+
+  // Estado del mecanismo de activación de doble verificación física:
+  // 1) Alcanzar y mantener el pestillo de carga dentro de la ventana [94..124 px]
+  // 2) Al retirar la masa, recuperar la longitud libre original (sin deformación plástica residual)
+  primaryLatchTimer: 0,
+  primaryLatchEngaged: false,
+  recoveryVerified: false,
+  failureReason: '',
+  diagnosticStatus: 'Instala un resorte en el gancho superior para iniciar el ensayo.',
+
+  resetChamber() {
+    this.installedSpringId = null;
+    this.massAttached = false;
+    this.safetyLatchReleased = false;
+    this.currentExtension = 0;
+    this.velocityY = 0;
+    this.primaryLatchTimer = 0;
+    this.primaryLatchEngaged = false;
+    this.recoveryVerified = false;
+    this.failureReason = '';
+    this.diagnosticStatus = 'Instala un resorte en el gancho superior para iniciar el ensayo.';
+    for (const sp of this.springs) {
+      sp.plasticOffset = 0;
+    }
+    ErrorAndHistoryManager.undoStackSprings = [];
+    ErrorAndHistoryManager.updateUndoButton();
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+    }
+  },
+
+  getInstalledSpring() {
+    if (!this.installedSpringId) return null;
+    return this.springs.find(s => s.id === this.installedSpringId) || null;
+  },
+
+  getSnapshot() {
+    return {
+      installedSpringId: this.installedSpringId,
+      massAttached: this.massAttached,
+      safetyLatchReleased: this.safetyLatchReleased,
+      currentExtension: this.currentExtension,
+      primaryLatchEngaged: this.primaryLatchEngaged,
+      plasticOffsets: this.springs.map(s => s.plasticOffset)
+    };
+  },
+
+  restoreSnapshot(snap) {
+    if (!snap) return;
+    this.installedSpringId = snap.installedSpringId;
+    this.massAttached = snap.massAttached;
+    this.safetyLatchReleased = snap.safetyLatchReleased;
+    this.currentExtension = snap.currentExtension || 0;
+    this.velocityY = 0;
+    this.primaryLatchEngaged = !!snap.primaryLatchEngaged;
+    this.primaryLatchTimer = 0;
+    this.recoveryVerified = false;
+    if (Array.isArray(snap.plasticOffsets)) {
+      this.springs.forEach((s, i) => {
+        s.plasticOffset = snap.plasticOffsets[i] || 0;
+      });
+    }
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+    }
+  },
+
+  installSpring(springId) {
+    ErrorAndHistoryManager.pushSpringsSnapshot(this.getSnapshot());
+    const sp = this.springs.find(s => s.id === springId);
+    if (!sp) return;
+    this.installedSpringId = springId;
+    this.massAttached = false;
+    this.safetyLatchReleased = false;
+    // Pequeña oscilación natural al colgar el resorte por su propio peso
+    this.currentExtension = sp.plasticOffset + 6;
+    this.velocityY = 18;
+    this.primaryLatchTimer = 0;
+    this.primaryLatchEngaged = false;
+    this.recoveryVerified = false;
+    this.failureReason = '';
+    this.diagnosticStatus = `${sp.label} suspendido en el gancho superior. Ahora coloca la masa M en el soporte inferior.`;
+    SoundEngine.playClick(460, 0.06, 'triangle', 0.09);
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+    }
+  },
+
+  attachMass() {
+    const sp = this.getInstalledSpring();
+    if (!sp) {
+      ErrorAndHistoryManager.showToast('Primero debes instalar un resorte en el gancho superior.', true);
+      SoundEngine.playErrorBump();
+      return;
+    }
+    if (this.massAttached) return;
+    ErrorAndHistoryManager.pushSpringsSnapshot(this.getSnapshot());
+    this.massAttached = true;
+    this.safetyLatchReleased = false;
+    this.primaryLatchTimer = 0;
+    this.primaryLatchEngaged = false;
+    this.velocityY = 0;
+    this.diagnosticStatus =
+      'Masa M fijada en el soporte con seguro retenido. Acciona la palanca «Liberar Seguro de Carga» para observar la respuesta dinámica.';
+    SoundEngine.playClick(340, 0.07, 'sawtooth', 0.09);
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+    }
+  },
+
+  releaseSafetyLatch() {
+    const sp = this.getInstalledSpring();
+    if (!sp || !this.massAttached) {
+      ErrorAndHistoryManager.showToast(
+        'Instala un resorte y cuelga la masa en el soporte inferior antes de liberar el seguro.',
+        true
+      );
+      SoundEngine.playErrorBump();
+      return;
+    }
+    if (this.safetyLatchReleased) return;
+    ErrorAndHistoryManager.pushSpringsSnapshot(this.getSnapshot());
+    this.safetyLatchReleased = true;
+    this.primaryLatchTimer = 0;
+    this.velocityY = 12;
+    SoundEngine.playSpringRelease(sp.k);
+    this.diagnosticStatus = `Seguro liberado: observando elongación dinámica y oscilación amortiguada del ${sp.label}...`;
+  },
+
+  removeMassToVerifyRecovery() {
+    const sp = this.getInstalledSpring();
+    if (!sp || !this.massAttached) return;
+    ErrorAndHistoryManager.pushSpringsSnapshot(this.getSnapshot());
+    this.massAttached = false;
+    this.safetyLatchReleased = false;
+    SoundEngine.playSpringRelease(sp.k * 1.2);
+
+    if (sp.plasticOffset > 15) {
+      this.failureReason =
+        'Fallo físico observado: El Resorte C superó su límite de fluencia elástica y conservó una deformación plástica permanente (+56 mm). No recupera su longitud inicial al retirar la carga.';
+      this.diagnosticStatus = this.failureReason;
+      this.primaryLatchEngaged = false;
+      ErrorAndHistoryManager.showToast(
+        'Deformación permanente detectada: el Resorte C no recupera su longitud original al retirar la carga.',
+        true
+      );
+    } else if (this.primaryLatchEngaged) {
+      this.diagnosticStatus =
+        'Retirando la carga: comprobando recuperación elástica hacia la longitud libre L₀ para liberar el segundo trinquete...';
+    } else {
+      this.diagnosticStatus = 'Masa retirada al soporte lateral. El resorte recupera su longitud de reposo.';
+    }
+
+    if (typeof InteractionSystem !== 'undefined') {
+      InteractionSystem.rebuildInventoryDock();
+    }
+  },
+
+  updatePhysics(dt) {
+    const sp = this.getInstalledSpring();
+    if (!sp) return;
+
+    // Sub-stepping para estabilidad numérica de la ecuación diferencial de 2º orden
+    const subSteps = 4;
+    const h = Math.min(dt, 0.05) / subSteps;
+
+    for (let step = 0; step < subSteps; step++) {
+      let targetForce = 0;
+      if (this.massAttached && this.safetyLatchReleased) {
+        targetForce = this.gravityForce;
+      } else if (this.massAttached && !this.safetyLatchReleased) {
+        // Soportado por el tope de retención antes de liberar el seguro
+        targetForce = 10;
+      }
+
+      // Deformación plástica progresiva si supera el límite elástico (caso del Resorte C)
+      const elasticDelta = this.currentExtension - sp.plasticOffset;
+      if (this.massAttached && this.safetyLatchReleased && elasticDelta > sp.yieldExtension) {
+        const maxP = sp.maxPlasticOffset || 56;
+        if (sp.plasticOffset < maxP) {
+          sp.plasticOffset = Math.min(maxP, sp.plasticOffset + (elasticDelta - sp.yieldExtension) * 0.18);
+        }
+      }
+
+      const restoringForce = -sp.k * (this.currentExtension - sp.plasticOffset);
+      const dampingForce = -sp.damping * this.velocityY * 1.5;
+      const totalAccel = (targetForce + restoringForce + dampingForce) * 42.0;
+
+      this.velocityY += totalAccel * h;
+      this.currentExtension += this.velocityY * h;
+
+      // Tope mecánico inferior (Hard Stop)
+      if (this.currentExtension > this.tower.hardStopExtension) {
+        this.currentExtension = this.tower.hardStopExtension;
+        this.velocityY = -Math.abs(this.velocityY) * 0.32;
+      }
+      // Tope superior de compresión
+      if (this.currentExtension < -18) {
+        this.currentExtension = -18;
+        this.velocityY = Math.abs(this.velocityY) * 0.35;
+      }
+    }
+
+    // Evaluar condición física cuando la masa está suspendida y el seguro fue liberado
+    const speed = Math.abs(this.velocityY);
+    const ext = this.currentExtension;
+    const inTargetZone =
+      ext >= this.tower.targetMinExtension && ext <= this.tower.targetMaxExtension;
+
+    if (this.massAttached && this.safetyLatchReleased) {
+      if (inTargetZone && speed < 14) {
+        this.primaryLatchTimer += dt;
+        if (this.primaryLatchTimer >= 0.85 && !this.primaryLatchEngaged) {
+          this.primaryLatchEngaged = true;
+          SoundEngine.playClick(680, 0.08, 'triangle', 0.1);
+          if (sp.id === 'C') {
+            this.diagnosticStatus =
+              'Etapa 1/2: El soporte alcanzó la zona del pestillo, pero el indicador muestra fluencia plástica. Ahora retira la masa para comprobar si recupera su forma original.';
+          } else {
+            this.diagnosticStatus =
+              '¡Etapa 1/2 completada! El soporte alcanzó y estabilizó el pestillo de contacto. Ahora retira la masa (o pulsa «Retirar Masa») para verificar que recupera su forma original.';
+          }
+        }
+      } else if (speed < 8) {
+        if (ext < this.tower.targetMinExtension - 10) {
+          this.failureReason =
+            'Fallo físico (Resorte A): Rigidez excesiva (k muy alta). Con la carga disponible la elongación es insuficiente y el soporte no alcanza el pestillo.';
+          this.diagnosticStatus = this.failureReason;
+        } else if (ext > this.tower.targetMaxExtension + 10) {
+          this.failureReason =
+            'Fallo físico (Resorte B): Rigidez insuficiente (demasiado flexible). El soporte sobrepasa la ventana de activación y golpea el tope mecánico inferior.';
+          this.diagnosticStatus = this.failureReason;
+        }
+      }
+    }
+
+    // Etapa 2/2: Si el pestillo primario fue enganchado y el usuario retira la masa, verificar recuperación elástica a longitud inicial
+    if (!this.massAttached && this.primaryLatchEngaged && !this.recoveryVerified) {
+      if (sp.plasticOffset <= 5 && Math.abs(this.currentExtension) < 6 && speed < 12) {
+        this.recoveryVerified = true;
+        this.diagnosticStatus =
+          '¡Ciclo elástico 2/2 verificado! El Resorte D alcanzó el seguro bajo carga y recuperó íntegramente su longitud libre al retirarla. Desbloqueando Cámara III...';
+        ErrorAndHistoryManager.showToast(
+          '¡Mecanismo elástico superado! El Resorte D cumplió elongación controlada y recuperación elástica total.'
+        );
+        setTimeout(() => {
+          if (SimState.mode === 'CHAMBER_2') {
+            SimState.triggerTransition2To3();
+          }
+        }, 1000);
+      }
+    }
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 8: SISTEMA DE CÁMARAS Y TRANSICIONES CINEMATOGRÁFICAS 2.5D/3D (08_camera_transitions.js)
+// ============================================================================
+
+const CameraTransitionSystem = {
+  // Parámetros de perspectiva oblicua 3D para la pantalla inicial y las transiciones
+  orbitYaw: -0.42,
+  orbitPitch: 0.62,
+  zoom: 1.0,
+  isDraggingOrbit: false,
+  lastPointerX: 0,
+  lastPointerY: 0,
+
+  // Estado de animación de transición cinematográfica entre niveles
+  animTime: 0,
+  duration1To2: 7.2,
+  duration2To3: 5.6,
+  boxVibration: 0,
+  gate1OpenRatio: 0,
+  gate2OpenRatio: 0,
+
+  // Cajitas físicas que transportan los materiales desde la Cámara I a la Cámara II por la rampa
+  deliveryCrates: [
+    { id: 'c1', label: 'CAJA I: 4 RESORTES (A–D)', color: '#38bdf8', progress: 0, v: 0, delay: 1.55 },
+    { id: 'c2', label: 'CAJA II: MASA CALIBRADA M', color: '#f59e0b', progress: 0, v: 0, delay: 2.05 },
+    { id: 'c3', label: 'CAJA III: SEGURO MECÁNICO', color: '#10b981', progress: 0, v: 0, delay: 2.55 }
+  ],
+
+  startTransition1To2() {
+    this.animTime = 0;
+    this.gate1OpenRatio = 0;
+    this.boxVibration = 1.0;
+    this.deliveryCrates.forEach(c => {
+      c.progress = 0;
+      c.v = 0;
+    });
+  },
+
+  startTransition2To3() {
+    this.animTime = 0;
+    this.gate2OpenRatio = 0;
+    this.boxVibration = 1.0;
+  },
+
+  skipCurrentTransition() {
+    if (SimState.mode === 'TRANSITION_1_2') {
+      SimState.transition1Seen = true;
+      this.gate1OpenRatio = 1;
+      this.deliveryCrates.forEach(c => { c.progress = 1; });
+      SimState.enterChamber(2, true);
+    } else if (SimState.mode === 'TRANSITION_2_3') {
+      SimState.transition2Seen = true;
+      this.gate2OpenRatio = 1;
+      SimState.enterChamber(3, true);
+    }
+  },
+
+  update(dt) {
+    if (SimState.mode === 'START') {
+      // Rotación orbital sutil en la pantalla de inicio cuando el usuario no arrastra
+      if (!this.isDraggingOrbit) {
+        this.orbitYaw = -0.42 + Math.sin(performance.now() * 0.00045) * 0.14;
+      }
+      return;
+    }
+
+    if (SimState.mode === 'TRANSITION_1_2') {
+      this.animTime += dt;
+      const t = this.animTime;
+
+      // Vibración mecánica al liberarse el pestillo (t = 0.4..1.4s)
+      if (t > 0.3 && t < 1.4) {
+        this.boxVibration = Math.sin(t * 55) * 3.2 * Math.max(0, 1 - (t - 0.3) / 1.1);
+      } else {
+        this.boxVibration = 0;
+      }
+
+      // Apertura progresiva de la compuerta mecánica 1-2 (t = 0.9..2.2s)
+      if (t > 0.9) {
+        this.gate1OpenRatio = Math.min(1, (t - 0.9) / 1.25);
+      }
+
+      // Dinámica física de las cajitas deslizándose con aceleración y frenado por fricción en la rampa (t = 1.55..5.0s)
+      for (const crate of this.deliveryCrates) {
+        if (t > crate.delay && crate.progress < 1) {
+          // Aceleración gravitatoria en rampa inclinada + desaceleración por rozamiento al llegar a la bandeja de Cámara II
+          const rampAccel = crate.progress < 0.68 ? 0.58 : -0.72;
+          crate.v = Math.max(0.14, Math.min(0.65, crate.v + rampAccel * dt));
+          crate.progress = Math.min(1, crate.progress + crate.v * dt);
+          if (crate.progress >= 1 && crate.v > 0) {
+            crate.v = 0;
+            SoundEngine.playClick(280, 0.05, 'triangle', 0.07);
+          }
+        }
+      }
+
+      if (t >= this.duration1To2) {
+        SimState.transition1Seen = true;
+        SimState.enterChamber(2, true);
+      }
+    } else if (SimState.mode === 'TRANSITION_2_3') {
+      this.animTime += dt;
+      const t = this.animTime;
+
+      if (t > 0.3 && t < 1.3) {
+        this.boxVibration = Math.sin(t * 50) * 3.0 * Math.max(0, 1 - (t - 0.3));
+      } else {
+        this.boxVibration = 0;
+      }
+
+      if (t > 0.85) {
+        this.gate2OpenRatio = Math.min(1, (t - 0.85) / 1.3);
+      }
+
+      if (t >= this.duration2To3) {
+        SimState.transition2Seen = true;
+        SimState.enterChamber(3, true);
+      }
+    }
+  },
+
+  // Proyección 3D isométrica/oblicua con altura Z real para renderizar el grosor de las paredes y compartimentos
+  project3DPoint(x, y, z, cx, cy, yaw, pitch, scale) {
+    const cosY = Math.cos(yaw);
+    const sinY = Math.sin(yaw);
+    const cosP = Math.cos(pitch);
+    const sinP = Math.sin(pitch);
+
+    const rx = x * cosY - y * sinY;
+    const ry = x * sinY + y * cosY;
+
+    const screenX = cx + rx * scale + this.boxVibration;
+    const screenY = cy + (ry * cosP - z * sinP) * scale + this.boxVibration * 0.5;
+    return { x: screenX, y: screenY };
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 2: ESCENARIO Y RENDERIZADO DE LA CAJA EXPERIMENTAL (02_renderer_box.js)
+// ============================================================================
+
+const BoxRenderer = {
+  canvas: null,
+  ctx: null,
+  logicalWidth: 900,
+  logicalHeight: 560,
+  renderScale: 1,
+  offsetX: 0,
+  offsetY: 0,
+
+  // Botones interactivos dentro del lienzo de la Cámara II para facilitar uso con ratón/táctil
+  chamber2CanvasButtons: [],
+
+  init(canvasEl) {
+    this.canvas = canvasEl;
+    this.ctx = canvasEl.getContext('2d');
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+  },
+
+  resize() {
+    if (!this.canvas || !this.canvas.parentElement) return;
+    const rect = this.canvas.parentElement.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(320, rect.width - 12);
+    const h = Math.max(240, rect.height - 12);
+
+    const scaleX = w / this.logicalWidth;
+    const scaleY = h / this.logicalHeight;
+    this.renderScale = Math.min(scaleX, scaleY);
+
+    const drawW = Math.floor(this.logicalWidth * this.renderScale);
+    const drawH = Math.floor(this.logicalHeight * this.renderScale);
+
+    this.canvas.style.width = `${drawW}px`;
+    this.canvas.style.height = `${drawH}px`;
+    this.canvas.width = Math.floor(drawW * dpr);
+    this.canvas.height = Math.floor(drawH * dpr);
+
+    this.ctx.setTransform(dpr * this.renderScale, 0, 0, dpr * this.renderScale, 0, 0);
+  },
+
+  screenToLogical(clientX, clientY) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: ((clientX - rect.left) / rect.width) * this.logicalWidth,
+      y: ((clientY - rect.top) / rect.height) * this.logicalHeight
+    };
+  },
+
+  render() {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
+
+    if (
+      SimState.mode === 'START' ||
+      SimState.mode === 'TRANSITION_1_2' ||
+      SimState.mode === 'TRANSITION_2_3'
+    ) {
+      this.render3DObliqueBox(ctx);
+    } else if (SimState.mode === 'CHAMBER_1') {
+      this.renderChamber1Optics(ctx);
+    } else if (SimState.mode === 'CHAMBER_2') {
+      this.renderChamber2Springs(ctx);
+    } else if (SimState.mode === 'CHAMBER_3') {
+      this.renderChamber3Reserved(ctx);
+    }
+  },
+
+  // --------------------------------------------------------------------------
+  // VISTA 2.5D / 3D OBLICUA DE LA CAJA EXPERIMENTAL COMPLETA (3 COMPARTIMENTOS)
+  // --------------------------------------------------------------------------
+  render3DObliqueBox(ctx) {
+    const W = this.logicalWidth;
+    const H = this.logicalHeight;
+
+    // Fondo técnico oscuro
+    const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.48, 40, W * 0.5, H * 0.5, 520);
+    bgGrad.addColorStop(0, '#162030');
+    bgGrad.addColorStop(1, '#080c12');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Determinar ángulo de cámara según el modo (inicio o transición cinematográfica)
+    let yaw = CameraTransitionSystem.orbitYaw;
+    let pitch = CameraTransitionSystem.orbitPitch;
+    let scale = 1.05;
+    let cx = W * 0.5;
+    let cy = H * 0.53;
+
+    if (SimState.mode === 'TRANSITION_1_2') {
+      const t = CameraTransitionSystem.animTime;
+      const total = CameraTransitionSystem.duration1To2;
+      if (t < 1.1) {
+        // Alejarse suavemente desde vista superior de Cámara I hacia vista oblicua 3D
+        const u = t / 1.1;
+        const ease = u * u * (3 - 2 * u);
+        yaw = -0.38 * ease;
+        pitch = 0.62 * ease;
+        scale = 1.38 - 0.33 * ease;
+        cx = W * (0.62 - 0.12 * ease);
+        cy = H * (0.62 - 0.09 * ease);
+      } else if (t > total - 1.3) {
+        // Acercarse nuevamente y recuperar vista superior centrada en Cámara II
+        const u = Math.min(1, (t - (total - 1.3)) / 1.3);
+        const ease = u * u * (3 - 2 * u);
+        yaw = -0.38 * (1 - ease);
+        pitch = 0.62 * (1 - ease);
+        scale = 1.05 + 0.35 * ease;
+        cx = W * (0.5 - 0.14 * ease);
+        cy = H * (0.53 + 0.1 * ease);
+      } else {
+        yaw = -0.38 + Math.sin(t * 0.6) * 0.05;
+        pitch = 0.62;
+        scale = 1.05;
+      }
+    } else if (SimState.mode === 'TRANSITION_2_3') {
+      const t = CameraTransitionSystem.animTime;
+      const total = CameraTransitionSystem.duration2To3;
+      if (t < 1.0) {
+        const u = t / 1.0;
+        const ease = u * u * (3 - 2 * u);
+        yaw = -0.35 * ease;
+        pitch = 0.6 * ease;
+        scale = 1.35 - 0.3 * ease;
+      } else if (t > total - 1.2) {
+        const u = Math.min(1, (t - (total - 1.2)) / 1.2);
+        const ease = u * u * (3 - 2 * u);
+        yaw = -0.35 * (1 - ease);
+        pitch = 0.6 * (1 - ease);
+        scale = 1.05 + 0.32 * ease;
+        cy = H * (0.53 - 0.14 * ease);
+      } else {
+        yaw = -0.35;
+        pitch = 0.6;
+        scale = 1.05;
+      }
+    }
+
+    const P = (x, y, z) =>
+      CameraTransitionSystem.project3DPoint(x, y, z, cx, cy, yaw, pitch, scale);
+
+    // Dimensiones de la caja cuadrada/rectangular principal (-260..+260 en X, -210..+210 en Y, altura Z=0..56)
+    const bx0 = -260, bx1 = 260;
+    const by0 = -210, by1 = 210;
+    const wallH = 54;
+
+    // Sombra proyectada en la mesa de laboratorio
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.beginPath();
+    [P(bx0 - 14, by0 - 14, -8), P(bx1 + 18, by0 - 14, -8), P(bx1 + 18, by1 + 18, -8), P(bx0 - 14, by1 + 18, -8)].forEach(
+      (pt, i) => (i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y))
+    );
+    ctx.closePath();
+    ctx.fill();
+
+    // Piso base de la caja experimental (Z = 0)
+    ctx.fillStyle = '#0e141f';
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    [P(bx0, by0, 0), P(bx1, by0, 0), P(bx1, by1, 0), P(bx0, by1, 0)].forEach((pt, i) =>
+      i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)
+    );
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Fondos diferenciados de las 3 cámaras conectadas:
+    // Cámara I (Izquierda Superior: x = -250..0, y = -200..+65)
+    // Cámara II (Derecha Superior: x = 0..+250, y = -200..+65)
+    // Cámara III (Inferior Reservada: x = -250..+250, y = +65..+200)
+    const drawFloorQuad = (x0, y0, x1, y1, fill, stroke) => {
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      [P(x0, y0, 2), P(x1, y0, 2), P(x1, y1, 2), P(x0, y1, 2)].forEach((pt, i) =>
+        i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    };
+
+    drawFloorQuad(-250, -200, -4, 60, '#101929', '#1e293b'); // Cámara I: Óptica
+    drawFloorQuad(4, -200, 250, 60, '#131d2e', '#1e293b');    // Cámara II: Elasticidad
+    drawFloorQuad(-250, 68, 250, 200, '#0d131c', '#1e293b');  // Cámara III: Módulo Reservado
+
+    // Detalles internos de la Cámara I en 3D (haces luminosos y paredes internas)
+    const draw3DWallPrism = (x0, y0, x1, y1, zH, topColor = '#33445e', sideColor = '#1e293b') => {
+      const b0 = P(x0, y0, 2), b1 = P(x1, y0, 2), b2 = P(x1, y1, 2), b3 = P(x0, y1, 2);
+      const t0 = P(x0, y0, zH), t1 = P(x1, y0, zH), t2 = P(x1, y1, zH), t3 = P(x0, y1, zH);
+
+      ctx.fillStyle = sideColor;
+      ctx.beginPath();
+      ctx.moveTo(b3.x, b3.y); ctx.lineTo(b2.x, b2.y); ctx.lineTo(t2.x, t2.y); ctx.lineTo(t3.x, t3.y);
+      ctx.closePath(); ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.lineTo(t2.x, t2.y); ctx.lineTo(t1.x, t1.y);
+      ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = topColor;
+      ctx.strokeStyle = '#475e80';
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(t0.x, t0.y); ctx.lineTo(t1.x, t1.y); ctx.lineTo(t2.x, t2.y); ctx.lineTo(t3.x, t3.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    };
+
+    // Paredes internas miniatura de Cámara I
+    draw3DWallPrism(-180, -200, -172, -110, 34);
+    draw3DWallPrism(-180, -30, -90, -22, 34);
+    draw3DWallPrism(-85, -200, -77, -110, 34);
+
+    // Haces ópticos brillantes dentro de Cámara I
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 2.6;
+    const sPt = P(-235, -70, 16);
+    const m1Pt = P(-135, -70, 16);
+    const ldr1Pt = P(-135, -175, 16);
+    const m2Pt = P(-45, -70, 16);
+    const ldr4Pt = P(-20, 25, 16);
+    ctx.beginPath();
+    ctx.moveTo(sPt.x, sPt.y);
+    ctx.lineTo(m1Pt.x, m1Pt.y);
+    ctx.lineTo(ldr1Pt.x, ldr1Pt.y);
+    ctx.moveTo(m1Pt.x, m1Pt.y);
+    ctx.lineTo(m2Pt.x, m2Pt.y);
+    ctx.stroke();
+
+    // Haz dispersado arcoíris hacia LDR-4
+    ['#ef4444', '#eab308', '#10b981', '#06b6d4', '#a855f7'].forEach((col, idx) => {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.6;
+      const endP = P(-25 + idx * 4, 28, 16);
+      ctx.beginPath();
+      ctx.moveTo(m2Pt.x, m2Pt.y);
+      ctx.lineTo(endP.x, endP.y);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    // Rampa/conducto de transferencia entre Cámara I y Cámara II (por donde bajan las cajitas)
+    const rampStart = P(-18, -55, 18);
+    const rampEnd = P(75, -55, 4);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(rampStart.x, rampStart.y);
+    ctx.lineTo(rampEnd.x, rampEnd.y);
+    ctx.stroke();
+
+    // Cajitas de materiales desplazándose físicamente durante la Transición 1 -> 2
+    if (SimState.mode === 'TRANSITION_1_2' || SimState.enigma1Solved) {
+      for (const crate of CameraTransitionSystem.deliveryCrates) {
+        const prog = SimState.mode === 'TRANSITION_1_2' ? crate.progress : 1;
+        const cx3d = -22 + prog * 96;
+        const cy3d = -95 + (crate.id === 'c1' ? -38 : crate.id === 'c2' ? 0 : 38);
+        const cz3d = 18 * (1 - prog) + 4;
+        draw3DWallPrism(cx3d - 14, cy3d - 11, cx3d + 14, cy3d + 11, cz3d + 14, crate.color, '#1e293b');
+      }
+    }
+
+    // Representación 3D de los resortes y torre en Cámara II
+    draw3DWallPrism(145, -175, 195, -155, 42, '#475569', '#1e293b');
+    const spTop = P(170, -155, 38);
+    const spBot = P(170, -65, 16);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(spTop.x, spTop.y);
+    for (let i = 1; i <= 8; i++) {
+      const u = i / 8;
+      const sx = spTop.x + (spBot.x - spTop.x) * u + (i % 2 === 0 ? -7 : 7);
+      const sy = spTop.y + (spBot.y - spTop.y) * u;
+      ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+
+    // Paredes divisorias principales y compuertas mecánicas deslizantes
+    const g1Open = SimState.mode === 'TRANSITION_1_2'
+      ? CameraTransitionSystem.gate1OpenRatio
+      : SimState.enigma1Solved ? 1 : 0;
+    const g2Open = SimState.mode === 'TRANSITION_2_3'
+      ? CameraTransitionSystem.gate2OpenRatio
+      : SimState.enigma2Solved ? 1 : 0;
+
+    // Pared divisoria vertical entre Cámara I y Cámara II (con compuerta central que se desplaza)
+    draw3DWallPrism(-5, -200, 5, -115, wallH);
+    const gate1Y0 = -115 + g1Open * 72;
+    draw3DWallPrism(-4, gate1Y0, 4, gate1Y0 + 85, wallH - 4, g1Open > 0.1 ? '#10b981' : '#f59e0b', '#78350f');
+    draw3DWallPrism(-5, -28, 5, 62, wallH);
+
+    // Pared divisoria horizontal hacia Cámara III (con compuerta derecha que se desplaza)
+    draw3DWallPrism(-250, 60, 110, 68, wallH);
+    const gate2X0 = 110 - g2Open * 75;
+    draw3DWallPrism(gate2X0, 61, gate2X0 + 80, 67, wallH - 4, g2Open > 0.1 ? '#10b981' : '#f59e0b', '#78350f');
+    draw3DWallPrism(190, 60, 250, 68, wallH);
+
+    // Paredes perimetrales exteriores de la caja con espesor 3D
+    draw3DWallPrism(bx0, by0, bx1, by0 + 10, wallH, '#283548', '#17202e');
+    draw3DWallPrism(bx0, by0, bx0 + 10, by1, wallH, '#283548', '#17202e');
+    draw3DWallPrism(bx1 - 10, by0, bx1, by1, wallH, '#283548', '#17202e');
+    draw3DWallPrism(bx0, by1 - 10, bx1, by1, wallH, '#283548', '#17202e');
+
+    // Etiquetas técnicas sobre cada compartimento
+    ctx.font = '700 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+
+    const lbl1 = P(-125, -185, wallH + 8);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('MÓDULO I: ÓPTICA GEOMÉTRICA', lbl1.x, lbl1.y);
+
+    const lbl2 = P(125, -185, wallH + 8);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('MÓDULO II: ELASTICIDAD Y RESORTES', lbl2.x, lbl2.y);
+
+    const lbl3 = P(0, 135, 18);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('«TERCER MÓDULO: DISEÑO PENDIENTE»', lbl3.x, lbl3.y);
+
+    // Cubierta superior de acrílico transparente (Z = wallH) con reflejos suaves y tornillos Allen
+    if (SimState.showAcrylicCover) {
+      const t0 = P(bx0, by0, wallH);
+      const t1 = P(bx1, by0, wallH);
+      const t2 = P(bx1, by1, wallH);
+      const t3 = P(bx0, by1, wallH);
+
+      const acrGrad = ctx.createLinearGradient(t0.x, t0.y, t2.x, t2.y);
+      acrGrad.addColorStop(0, 'rgba(148, 163, 184, 0.12)');
+      acrGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0.04)');
+      acrGrad.addColorStop(0.52, 'rgba(255, 255, 255, 0.16)');
+      acrGrad.addColorStop(1, 'rgba(56, 189, 248, 0.08)');
+
+      ctx.fillStyle = acrGrad;
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(t0.x, t0.y); ctx.lineTo(t1.x, t1.y); ctx.lineTo(t2.x, t2.y); ctx.lineTo(t3.x, t3.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Tornillos en las esquinas de la cubierta de acrílico
+      [
+        [bx0 + 16, by0 + 16],
+        [bx1 - 16, by0 + 16],
+        [bx1 - 16, by1 - 16],
+        [bx0 + 16, by1 - 16],
+        [0, by0 + 16],
+        [0, 64]
+      ].forEach(([sx, sy]) => {
+        const sp = P(sx, sy, wallH + 1);
+        this.drawScrewHead(ctx, sp.x, sp.y, 5.5);
+      });
+    }
+
+    // Subtítulo cinematográfico en vivo durante las transiciones
+    if (SimState.mode === 'TRANSITION_1_2' || SimState.mode === 'TRANSITION_2_3') {
+      this.renderTransitionBanner(ctx, W, H);
+    }
+  },
+
+  renderTransitionBanner(ctx, W, H) {
+    const isT1 = SimState.mode === 'TRANSITION_1_2';
+    const t = CameraTransitionSystem.animTime;
+    let stepMsg = '';
+    if (isT1) {
+      if (t < 1.2) stepMsg = '1/4 • Alejando cámara a perspectiva oblicua 3D: circuito lógico AND activado...';
+      else if (t < 2.3) stepMsg = '2/4 • Solenoide liberado: desplazando seguro mecánico y abriendo compuerta I → II...';
+      else if (t < 5.4) stepMsg = '3/4 • Entregando materiales por el conducto: 4 resortes helicoidales, masa calibrada y seguro...';
+      else stepMsg = '4/4 • Centrando vista superior sobre el Segundo Compartimento (Sistema de Elasticidad)...';
+    } else {
+      if (t < 1.2) stepMsg = '1/3 • Ciclo elástico verificado: cambiando a perspectiva oblicua de la caja...';
+      else if (t < 3.6) stepMsg = '2/3 • Liberando seguro secundario y abriendo compuerta hacia el Tercer Compartimento...';
+      else stepMsg = '3/3 • Accediendo al Tercer Compartimento (Módulo Experimental Reservado)...';
+    }
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(10, 15, 24, 0.9)';
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(W * 0.5 - 310, H - 56, 620, 38);
+    ctx.strokeRect(W * 0.5 - 310, H - 56, 620, 38);
+    ctx.fillStyle = '#fef3c7';
+    ctx.font = '600 12px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(stepMsg, W * 0.5, H - 32);
+    ctx.restore();
+  },
+
+  // --------------------------------------------------------------------------
+  // CÁMARA I: BANCO ÓPTICO DE DISTRIBUCIÓN LUMINOSA (VISTA SUPERIOR 2D/2.5D)
+  // --------------------------------------------------------------------------
+  renderChamber1Optics(ctx) {
+    const W = this.logicalWidth;
+    const H = this.logicalHeight;
+
+    // Fondo industrial oscuro con cuadrícula milimétrica de banco óptico
+    ctx.fillStyle = '#0c111b';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(51, 65, 85, 0.24)';
+    ctx.lineWidth = 1;
+    for (let x = 30; x < W - 30; x += 25) {
+      ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, H - 30); ctx.stroke();
+    }
+    for (let y = 30; y < H - 30; y += 25) {
+      ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(W - 30, y); ctx.stroke();
+    }
+
+    // Grabados técnicos discretos en la placa base de aluminio
+    ctx.save();
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.16)';
+    ctx.font = '600 10px "JetBrains Mono", monospace';
+    ctx.fillText('CÁMARA I — SISTEMA ÓPTICO DE DISTRIBUCIÓN LUMINOSA [ESCALA 1:1]', 44, 48);
+    ctx.fillText('CÁMARA ESPECTRAL (DISPERSIÓN)', 625, 512);
+    ctx.restore();
+
+    // Rieles mecánicos grabados y nodos de montaje en el banco óptico
+    this.renderOpticalBenchRails(ctx);
+
+    // Pistas y cables eléctricos desde cada LDR hacia la compuerta lógica AND
+    this.renderElectricalTracesAndAndGate(ctx);
+
+    // Renderizado multicapa de los rayos luminosos (núcleo blanco, halo suave y dispersión espectral)
+    this.renderLightBeams(ctx);
+
+    // Paredes internas con bisel 3D y sombra proyectada
+    this.renderWallsWithDepth(ctx, OpticsModule.walls);
+
+    // Compuerta mecánica derecha hacia Cámara II con pestillo y engranajes
+    this.renderMechanicalGate1(ctx);
+
+    // Fuente luminosa blanca colimada fija e inmóvil
+    this.renderCollimatedLightSource(ctx);
+
+    // Las 4 fotorresistencias (LDR-1 a LDR-4) con su anillo indicador de estado al lado
+    this.renderPhotoresistors(ctx);
+
+    // Componentes ópticos colocados por el jugador
+    for (const piece of OpticsModule.placedPieces) {
+      const isSelected = piece.id === OpticsModule.selectedPieceId;
+      const isDragging =
+        InteractionSystem.draggingPiece && InteractionSystem.draggingPiece.id === piece.id;
+      this.renderOpticalPiece(ctx, piece, isSelected, isDragging);
+    }
+
+    // Cubierta transparente de acrílico con reflejos suaves y tornillos en las esquinas
+    this.renderAcrylicCoverAndScrews(ctx, W, H);
+  },
+
+  renderOpticalBenchRails(ctx) {
+    ctx.save();
+    // Líneas guía de rieles de aluminio
+    ctx.strokeStyle = 'rgba(71, 85, 105, 0.38)';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    const rails = [
+      [110, 280, 735, 280],
+      [260, 115, 260, 310],
+      [430, 255, 430, 480],
+      [255, 455, 455, 455],
+      [575, 90, 575, 310],
+      [555, 105, 780, 105]
+    ];
+    for (const [x1, y1, x2, y2] of rails) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    // Nodos de sujeción en riel
+    for (const node of OpticsModule.railNodes) {
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+      ctx.strokeStyle = SimState.snapToRails ? 'rgba(56, 189, 248, 0.35)' : 'rgba(100, 116, 139, 0.25)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
+  },
+
+  renderLightBeams(ctx) {
+    const segs = RayTracerEngine.tracedSegments;
+    if (!segs || segs.length === 0) return;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+
+    // Capa 1: Halo atmosférico exterior suave
+    for (const seg of segs) {
+      const alpha = Math.min(0.42, seg.power * 1.65);
+      const rgb = seg.band ? seg.band.rgb : [220, 238, 255];
+      ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha * 0.35})`;
+      ctx.lineWidth = seg.band ? 8 : 11;
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
+      ctx.stroke();
+    }
+
+    // Capa 2: Cuerpo intermedio del haz
+    for (const seg of segs) {
+      const alpha = Math.min(0.78, seg.power * 2.5);
+      const rgb = seg.band ? seg.band.rgb : [240, 248, 255];
+      ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha * 0.65})`;
+      ctx.lineWidth = seg.band ? 3.6 : 4.5;
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
+      ctx.stroke();
+    }
+
+    // Capa 3: Núcleo intenso central
+    for (const seg of segs) {
+      const alpha = Math.min(0.96, seg.power * 3.4);
+      const rgb = seg.band ? seg.band.rgb : [255, 255, 255];
+      ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+      ctx.lineWidth = seg.band ? 1.6 : 2.0;
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
+      ctx.stroke();
+    }
+
+    // Resplandores en superficies donde inciden los rayos
+    for (const g of RayTracerEngine.hitGlowPoints) {
+      const rgb = g.band ? g.band.rgb : [255, 255, 255];
+      const rad = Math.min(18, 7 + g.power * 26);
+      const grad = ctx.createRadialGradient(g.x, g.y, 1, g.x, g.y, rad);
+      grad.addColorStop(0, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${Math.min(0.85, g.power * 3)})`);
+      grad.addColorStop(1, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, rad, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  },
+
+  renderWallsWithDepth(ctx, walls) {
+    ctx.save();
+    for (const w of walls) {
+      // Sombra de profundidad sobre el tablero
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+      ctx.fillRect(w.x + 4, w.y + 5, w.w, w.h);
+
+      // Cuerpo metálico de la pared con bisel
+      const grad = ctx.createLinearGradient(w.x, w.y, w.x + w.w, w.y + w.h);
+      grad.addColorStop(0, '#2c3a4f');
+      grad.addColorStop(0.5, '#1e293b');
+      grad.addColorStop(1, '#151d2a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(w.x, w.y, w.w, w.h);
+
+      ctx.strokeStyle = '#475978';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(w.x + 0.5, w.y + 0.5, w.w - 1, w.h - 1);
+    }
+    ctx.restore();
+  },
+
+  renderCollimatedLightSource(ctx) {
+    const src = OpticsModule.source;
+    ctx.save();
+    // Carcasa del colimador fijo
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(30, src.y - 28, 46, 60);
+
+    const bodyGrad = ctx.createLinearGradient(30, src.y - 26, 30, src.y + 26);
+    bodyGrad.addColorStop(0, '#334155');
+    bodyGrad.addColorStop(0.5, '#475569');
+    bodyGrad.addColorStop(1, '#1e293b');
+    ctx.fillStyle = bodyGrad;
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(30, src.y - 26, 42, 52);
+    ctx.strokeRect(30, src.y - 26, 42, 52);
+
+    // Aletas de disipación térmica
+    ctx.strokeStyle = '#0f172a';
+    for (let x = 36; x <= 56; x += 5) {
+      ctx.beginPath();
+      ctx.moveTo(x, src.y - 24);
+      ctx.lineTo(x, src.y + 24);
+      ctx.stroke();
+    }
+
+    // Boquilla colimadora emisora de luz blanca
+    ctx.fillStyle = '#f8fafc';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 14;
+    ctx.fillRect(68, src.y - src.beamHalfWidth - 2, 6, (src.beamHalfWidth + 2) * 2);
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '700 9.5px "JetBrains Mono", monospace';
+    ctx.fillText('FUENTE BLANCA', 32, src.y - 32);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('FIJA COLIMADA', 32, src.y + 38);
+    ctx.restore();
+  },
+
+  renderPhotoresistors(ctx) {
+    for (const s of OpticsModule.sensors) {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      const angle = Math.atan2(s.ny, s.nx);
+      ctx.rotate(angle);
+
+      // Base de montaje y terminales metálicos
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-12, -s.radius, 18, s.radius * 2, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Pastilla fotosensible de sulfuro de cadmio (CdS) con pista en zigzag
+      ctx.fillStyle = s.state === 'ACTIVE' ? '#fef3c7' : '#7c2d12';
+      ctx.beginPath();
+      ctx.arc(2, 0, s.radius * 0.65, -Math.PI * 0.5, Math.PI * 0.5);
+      ctx.fill();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      for (let yy = -8; yy <= 8; yy += 4) {
+        ctx.moveTo(0, yy);
+        ctx.lineTo(9, yy + 2);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // Anillo circular indicador de estado colocado junto al sensor
+      const ringX = s.x - s.nx * 26;
+      const ringY = s.y - s.ny * 26;
+
+      ctx.save();
+      ctx.fillStyle = '#090d14';
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Anillo base apagado
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (s.state === 'PARTIAL') {
+        // Anillo parcialmente iluminado (próximo al umbral)
+        const ratio = Math.min(0.88, Math.max(0.25, s.voltageOut / OpticsModule.controlCircuit.vThreshold));
+        ctx.strokeStyle = '#f59e0b';
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 8;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(ringX, ringY, 10, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ratio);
+        ctx.stroke();
+      } else if (s.state === 'ACTIVE') {
+        // Anillo activado (iluminación suficiente >= umbral)
+        ctx.strokeStyle = '#10b981';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = 3.8;
+        ctx.beginPath();
+        ctx.arc(ringX, ringY, 10, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(ringX, ringY, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Etiqueta compacta del sensor
+      ctx.fillStyle = s.state === 'ACTIVE' ? '#6ee7b7' : s.state === 'PARTIAL' ? '#fde68a' : '#94a3b8';
+      ctx.font = '700 9.5px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.id, s.x, s.y + s.radius + 13);
+      ctx.restore();
+    }
+  },
+
+  renderElectricalTracesAndAndGate(ctx) {
+    const cc = OpticsModule.controlCircuit;
+    const now = performance.now() * 0.004;
+
+    ctx.save();
+    for (const s of OpticsModule.sensors) {
+      const pts = s.wirePath;
+      if (!pts || pts.length < 2) continue;
+
+      ctx.strokeStyle =
+        s.state === 'ACTIVE'
+          ? 'rgba(16, 185, 129, 0.75)'
+          : s.state === 'PARTIAL'
+          ? 'rgba(245, 158, 11, 0.45)'
+          : 'rgba(51, 65, 85, 0.5)';
+      ctx.lineWidth = s.state === 'ACTIVE' ? 2.4 : 1.6;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      for (const pt of pts) ctx.lineTo(pt.x, pt.y);
+      ctx.stroke();
+
+      // Pulsos animados de señal eléctrica cuando la fotorresistencia está activa
+      if (s.state === 'ACTIVE') {
+        ctx.strokeStyle = '#a7f3d0';
+        ctx.lineWidth = 2.6;
+        ctx.setLineDash([6, 14]);
+        ctx.lineDashOffset = -now * 28;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        for (const pt of pts) ctx.lineTo(pt.x, pt.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    // Módulo de control electrónico (Batería 5V + Divisores + Compuerta AND) junto a la compuerta derecha
+    const bx = 826, by = 196, bw = 42, bh = 62;
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = cc.andGateActive ? '#10b981' : '#475569';
+    ctx.lineWidth = 1.6;
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeRect(bx, by, bw, bh);
+
+    ctx.fillStyle = cc.andGateActive ? '#10b981' : '#94a3b8';
+    ctx.font = '700 8.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('5V DC', bx + bw / 2, by + 13);
+    ctx.fillText('AND×4', bx + bw / 2, by + 26);
+
+    // Barra de carga del temporizador de confirmación continua
+    const prog = Math.min(1, cc.currentHoldTime / cc.holdTimeRequired);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(bx + 5, by + 34, bw - 10, 7);
+    ctx.fillStyle = cc.andGateActive ? '#10b981' : '#f59e0b';
+    ctx.fillRect(bx + 5, by + 34, (bw - 10) * prog, 7);
+
+    // LED de salida del circuito de control
+    ctx.fillStyle = cc.gateUnlocked ? '#10b981' : cc.andGateActive ? '#34d399' : '#334155';
+    ctx.beginPath();
+    ctx.arc(bx + bw / 2, by + 51, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  },
+
+  renderMechanicalGate1(ctx) {
+    const cc = OpticsModule.controlCircuit;
+    const openOffset = cc.gateOpenProgress * 64;
+
+    ctx.save();
+    // Pestillo mecánico y compuerta en la pared derecha (x = 870, y = 260..340)
+    ctx.fillStyle = '#090d14';
+    ctx.fillRect(869, 260, 18, 82);
+
+    // Hoja de la compuerta deslizante
+    ctx.fillStyle = cc.gateUnlocked ? '#10b981' : '#d97706';
+    ctx.strokeStyle = '#fef3c7';
+    ctx.lineWidth = 1.2;
+    ctx.fillRect(871, 262 - openOffset, 14, 78);
+    ctx.strokeRect(871, 262 - openOffset, 14, 78);
+
+    // Engranaje animándose al abrir la compuerta
+    const gearAngle = cc.gateOpenProgress * Math.PI * 2.5;
+    this.drawGear(ctx, 862, 258, 10, 8, gearAngle, cc.gateUnlocked ? '#10b981' : '#64748b');
+    ctx.restore();
+  },
+
+  renderOpticalPiece(ctx, piece, isSelected, isDragging) {
+    ctx.save();
+    if (isDragging) {
+      // Sombra suave debajo del objeto y ligera elevación durante el arrastre
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetX = 5;
+      ctx.shadowOffsetY = 8;
+    }
+
+    ctx.translate(piece.x, piece.y);
+    const rad = (piece.angle * Math.PI) / 180;
+
+    // Anillo controlador circular de rotación visible cuando la pieza está seleccionada
+    if (isSelected) {
+      const ringR = piece.radius + 14;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Tirador circular de rotación (handle)
+      const hx = Math.cos(rad) * ringR;
+      const hy = Math.sin(rad) * ringR;
+      ctx.fillStyle = '#38bdf8';
+      ctx.strokeStyle = '#090d14';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(hx, hy, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.rotate(rad);
+
+    // Dibujo físico detallado según el tipo de componente óptico
+    if (piece.type === 'mirror') {
+      // Soporte mecánico posterior gris oscuro
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-piece.radius, -7, piece.radius * 2, 7);
+      // Rayado de superficie opaca posterior
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1;
+      for (let x = -piece.radius + 4; x < piece.radius; x += 6) {
+        ctx.beginPath();
+        ctx.moveTo(x, -1);
+        ctx.lineTo(x - 4, -7);
+        ctx.stroke();
+      }
+      // Lámina reflectante frontal aluminizada
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.moveTo(-piece.radius, 0);
+      ctx.lineTo(piece.radius, 0);
+      ctx.stroke();
+      // Abrazaderas en los extremos
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(-piece.radius - 2, -5, 5, 8);
+      ctx.fillRect(piece.radius - 3, -5, 5, 8);
+    } else if (piece.type === 'beamsplitter') {
+      // Marco anular de soporte en los extremos
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-piece.radius - 3, -4, 6, 8);
+      ctx.fillRect(piece.radius - 3, -4, 6, 8);
+      // Placa semirreflectante dieléctrica (distinta visualmente del espejo plano)
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.24)';
+      ctx.fillRect(-piece.radius, -3.5, piece.radius * 2, 7);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.2;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(-piece.radius, 0);
+      ctx.lineTo(piece.radius, 0);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else if (piece.type === 'lens_conv') {
+      // Lente convergente biconvexa
+      const r = piece.radius;
+      ctx.fillStyle = 'rgba(125, 211, 252, 0.28)';
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-r, 0);
+      ctx.quadraticCurveTo(0, -13, r, 0);
+      ctx.quadraticCurveTo(0, 13, -r, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Soportes en los bordes
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(-r - 3, -3, 5, 6);
+      ctx.fillRect(r - 2, -3, 5, 6);
+    } else if (piece.type === 'lens_div') {
+      // Lente divergente bicóncava
+      const r = piece.radius;
+      ctx.fillStyle = 'rgba(125, 211, 252, 0.24)';
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-r, -9);
+      ctx.quadraticCurveTo(0, -2.5, r, -9);
+      ctx.lineTo(r, 9);
+      ctx.quadraticCurveTo(0, 2.5, -r, 9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(-r - 3, -9, 4, 18);
+      ctx.fillRect(r - 1, -9, 4, 18);
+    } else if (piece.type === 'prism') {
+      // Prisma óptico triangular transparente
+      const R = piece.radius;
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.22)';
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      for (let k = 0; k < 3; k++) {
+        const a = (k * 2 * Math.PI) / 3;
+        const vx = R * Math.cos(a);
+        const vy = R * Math.sin(a);
+        if (k === 0) ctx.moveTo(vx, vy);
+        else ctx.lineTo(vx, vy);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    // Etiqueta contextual discreta cuando el usuario selecciona o manipula la pieza
+    if (isSelected) {
+      const cat = OpticsModule.inventoryCatalog.find(c => c.type === piece.type);
+      const labelTxt = `${cat ? cat.shortName : piece.type} (${Math.round(piece.angle)}°)`;
+      ctx.save();
+      ctx.font = '600 10px "JetBrains Mono", monospace';
+      const tw = ctx.measureText(labelTxt).width + 12;
+      ctx.fillStyle = 'rgba(11, 15, 23, 0.92)';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1;
+      ctx.fillRect(piece.x - tw / 2, piece.y - piece.radius - 28, tw, 18);
+      ctx.strokeRect(piece.x - tw / 2, piece.y - piece.radius - 28, tw, 18);
+      ctx.fillStyle = '#e0f2fe';
+      ctx.textAlign = 'center';
+      ctx.fillText(labelTxt, piece.x, piece.y - piece.radius - 15);
+      ctx.restore();
+    }
+  },
+
+  // --------------------------------------------------------------------------
+  // CÁMARA II: SISTEMA DE RESORTES Y ELASTICIDAD
+  // --------------------------------------------------------------------------
+  renderChamber2Springs(ctx) {
+    const W = this.logicalWidth;
+    const H = this.logicalHeight;
+    this.chamber2CanvasButtons = [];
+
+    // Fondo industrial oscuro
+    ctx.fillStyle = '#0d131d';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(51, 65, 85, 0.22)';
+    ctx.lineWidth = 1;
+    for (let x = 30; x < W - 30; x += 25) {
+      ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, H - 30); ctx.stroke();
+    }
+    for (let y = 30; y < H - 30; y += 25) {
+      ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(W - 30, y); ctx.stroke();
+    }
+
+    // Paredes perimetrales de la Cámara II
+    const walls2 = [
+      { x: 14, y: 14, w: 872, h: 16 },
+      { x: 14, y: 530, w: 872, h: 16 },
+      { x: 14, y: 14, w: 16, h: 532 },
+      { x: 870, y: 14, w: 16, h: 532 },
+      { x: 425, y: 130, w: 14, h: 400 } // Columna divisoria entre estantería de resortes y torre de ensayo
+    ];
+    this.renderWallsWithDepth(ctx, walls2);
+
+    // 1. Placa grabada con el acertijo físico obligatorio (arriba)
+    this.renderRiddlePlaque(ctx);
+
+    // 2. Estantería izquierda con los 4 resortes (A, B, C, D) y sus placas de pistas cualitativas
+    this.renderSpringRack(ctx);
+
+    // 3. Bandeja de entrega de la Masa Calibrada M
+    this.renderMassCradleTray(ctx);
+
+    // 4. Torre de ensayo mecánico (derecha): gancho superior, resorte instalado con geometría continua, soporte inferior, seguro y pestillo
+    this.renderSpringTestTower(ctx);
+
+    // Cubierta de acrílico y tornillos
+    this.renderAcrylicCoverAndScrews(ctx, W, H);
+  },
+
+  renderRiddlePlaque(ctx) {
+    ctx.save();
+    const px = 42, py = 38, pw = 816, ph = 66;
+    const grad = ctx.createLinearGradient(px, py, px, py + ph);
+    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(1, '#111827');
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeRect(px, py, pw, ph);
+
+    this.drawScrewHead(ctx, px + 10, py + 10, 4);
+    this.drawScrewHead(ctx, px + pw - 10, py + 10, 4);
+    this.drawScrewHead(ctx, px + 10, py + ph - 10, 4);
+    this.drawScrewHead(ctx, px + pw - 10, py + ph - 10, 4);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '700 10px "JetBrains Mono", monospace';
+    ctx.fillText('PLACA DE CONSIGNA EXPERIMENTAL — CÁMARA II (ELASTICIDAD Y LEY DE HOOKE):', px + 24, py + 19);
+
+    ctx.fillStyle = '#f1f5f9';
+    ctx.font = '500 12px "Inter", sans-serif';
+    ctx.fillText(
+      '«Necesito un resorte que se estire al colocar una carga, almacene energía elástica y pueda recuperar su forma al retirarla.',
+      px + 24,
+      py + 39
+    );
+    ctx.fillText(
+      'Además, debe permitir que el mecanismo alcance el seguro sin deformarse permanentemente. ¿Cuál elegirías?»',
+      px + 24,
+      py + 56
+    );
+    ctx.restore();
+  },
+
+  renderSpringRack(ctx) {
+    ctx.save();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '700 10.5px "JetBrains Mono", monospace';
+    ctx.fillText('ESTANTERÍA DE RESORTES ENTREGADOS (ARRASTRA AL GANCHO SUPERIOR):', 44, 132);
+
+    // Barra metálica de la estantería
+    ctx.fillStyle = '#334155';
+    ctx.strokeStyle = '#64748b';
+    ctx.fillRect(58, 146, 350, 10);
+    ctx.strokeRect(58, 146, 350, 10);
+
+    for (const sp of SpringsModule.springs) {
+      const isInstalled = SpringsModule.installedSpringId === sp.id;
+      const isDraggingThis =
+        InteractionSystem.draggingSpring && InteractionSystem.draggingSpring.id === sp.id;
+
+      // Placa inferior con pista cualitativa de cada resorte
+      ctx.fillStyle = '#141c2b';
+      ctx.strokeStyle = isInstalled ? '#38bdf8' : '#2d3d59';
+      ctx.lineWidth = 1.2;
+      ctx.fillRect(sp.rackX - 38, 332, 76, 60);
+      ctx.strokeRect(sp.rackX - 38, 332, 76, 60);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '700 11px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(sp.label, sp.rackX, 348);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '500 9px "Inter", sans-serif';
+      const words = sp.subtitle.split(' ');
+      ctx.fillText(words.slice(0, 2).join(' '), sp.rackX, 363);
+      ctx.fillText(words.slice(2).join(' '), sp.rackX, 375);
+
+      if (sp.plasticOffset > 10) {
+        ctx.fillStyle = '#ef4444';
+        ctx.font = '700 8.5px "JetBrains Mono", monospace';
+        ctx.fillText('¡DEFORMADO!', sp.rackX, 388);
+      }
+
+      if (!isInstalled && !isDraggingThis) {
+        const len = sp.freeLength0 + sp.plasticOffset * 0.65;
+        this.drawHelicalSpring(ctx, sp.rackX, 156, sp.rackX, 156 + len, sp);
+      }
+    }
+    ctx.restore();
+  },
+
+  renderMassCradleTray(ctx) {
+    const tray = SpringsModule.massTrayPos;
+    ctx.save();
+    ctx.fillStyle = '#151f30';
+    ctx.strokeStyle = '#3b4f6e';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(54, 412, 354, 98);
+    ctx.strokeRect(54, 412, 354, 98);
+
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '700 10px "JetBrains Mono", monospace';
+    ctx.fillText('BANDEJA DE CARGA ENTREGADA:', 68, 432);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px "Inter", sans-serif';
+    ctx.fillText('Arrastra la Masa Calibrada (M) al soporte inferior', 68, 452);
+    ctx.fillText('del resorte o haz clic para colocarla / retirarla.', 68, 468);
+
+    if (!SpringsModule.massAttached && !InteractionSystem.draggingMass) {
+      this.drawCalibratedMass(ctx, 352, 464);
+    } else {
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(326, 440, 52, 46);
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
+  },
+
+  renderSpringTestTower(ctx) {
+    const tw = SpringsModule.tower;
+    const sp = SpringsModule.getInstalledSpring();
+    const ext = SpringsModule.currentExtension;
+    const hookX = tw.hookX;
+    const hookY = tw.hookY;
+
+    ctx.save();
+    // Bastidor de la torre de ensayo
+    ctx.fillStyle = '#162032';
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.fillRect(462, 110, 386, 405);
+    ctx.strokeRect(462, 110, 386, 405);
+
+    // Travesaño superior con gancho de suspensión
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(475, 110, 150, 18);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(hookX, hookY + 20, 8, 0, Math.PI);
+    ctx.stroke();
+
+    // Escala graduada cualitativa y ventana verde de activación del pestillo
+    const zeroY = hookY + 24 + tw.baseFreeLength;
+    const zoneTopY = zeroY + tw.targetMinExtension;
+    const zoneBotY = zeroY + tw.targetMaxExtension;
+    const stopY = zeroY + tw.hardStopExtension;
+
+    // Banda de la zona de activación del pestillo (Stage 1)
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(482, zoneTopY, 152, zoneBotY - zoneTopY);
+    ctx.strokeRect(482, zoneTopY, 152, zoneBotY - zoneTopY);
+
+    ctx.fillStyle = '#6ee7b7';
+    ctx.font = '700 9.5px "JetBrains Mono", monospace';
+    ctx.fillText('ZONA DE ACTIVACIÓN DEL SEGURO', 644, (zoneTopY + zoneBotY) / 2 - 3);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('(Alcance requerido bajo carga)', 644, (zoneTopY + zoneBotY) / 2 + 10);
+
+    // Línea de referencia de longitud libre L₀ (para verificar recuperación elástica Stage 2)
+    ctx.strokeStyle = '#38bdf8';
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(482, zeroY);
+    ctx.lineTo(638, zeroY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('REFERENCIA LONGITUD LIBRE (L₀)', 644, zeroY + 4);
+
+    // Tope mecánico inferior (Hard Stop)
+    ctx.fillStyle = '#7f1d1d';
+    ctx.strokeStyle = '#ef4444';
+    ctx.fillRect(482, stopY, 145, 10);
+    ctx.strokeRect(482, stopY, 145, 10);
+    ctx.fillStyle = '#fca5a5';
+    ctx.fillText('LÍMITE MECÁNICO INFERIOR (TOPE)', 644, stopY + 8);
+
+    // Dibujar el resorte instalado con longitud y separación entre espiras actualizadas en cada fotograma
+    if (sp) {
+      const startY = hookY + 24;
+      const endY = zeroY + ext;
+      this.drawHelicalSpring(ctx, hookX, startY, hookX, endY, sp);
+
+      // Soporte inferior del resorte
+      ctx.fillStyle = '#cbd5e1';
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.fillRect(hookX - 28, endY, 56, 8);
+
+      // Puntero indicador sobre la columna del pestillo
+      ctx.fillStyle = SpringsModule.primaryLatchEngaged ? '#10b981' : '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(hookX + 28, endY + 4);
+      ctx.lineTo(634, endY);
+      ctx.lineTo(634, endY + 8);
+      ctx.closePath();
+      ctx.fill();
+
+      // Masa calibrada suspendida del soporte inferior
+      if (SpringsModule.massAttached) {
+        this.drawCalibratedMass(ctx, hookX, endY + 32);
+
+        // Si el seguro aún no se ha liberado, dibujar el soporte de retención
+        if (!SpringsModule.safetyLatchReleased) {
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(hookX - 42, endY + 54, 84, 7);
+        }
+      }
+    } else {
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+      ctx.font = '600 11px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('← Arrastra un resorte aquí', hookX, hookY + 95);
+      ctx.textAlign = 'left';
+    }
+
+    // Dibujar controles mecánicos directos en la torre (Palanca de Liberación / Retirar Masa)
+    this.renderTowerControlsAndStatus(ctx);
+
+    ctx.restore();
+  },
+
+  renderTowerControlsAndStatus(ctx) {
+    const sp = SpringsModule.getInstalledSpring();
+
+    // Estado de los 2 trinquetes del mecanismo (1: Alcance bajo carga, 2: Recuperación elástica al retirar)
+    const boxX = 644, boxY = 132, boxW = 190, boxH = 115;
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.4;
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '700 10px "JetBrains Mono", monospace';
+    ctx.fillText('ESTADO DEL MECANISMO:', boxX + 10, boxY + 18);
+
+    // Indicador Etapa 1
+    ctx.fillStyle = SpringsModule.primaryLatchEngaged ? '#10b981' : '#475569';
+    ctx.beginPath();
+    ctx.arc(boxX + 16, boxY + 38, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = SpringsModule.primaryLatchEngaged ? '#6ee7b7' : '#94a3b8';
+    ctx.font = '10px "Inter", sans-serif';
+    ctx.fillText('1. Alcance del seguro con carga', boxX + 27, boxY + 42);
+
+    // Indicador Etapa 2
+    ctx.fillStyle = SpringsModule.recoveryVerified ? '#10b981' : '#475569';
+    ctx.beginPath();
+    ctx.arc(boxX + 16, boxY + 60, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = SpringsModule.recoveryVerified ? '#6ee7b7' : '#94a3b8';
+    ctx.fillText('2. Recuperación elástica a L₀', boxX + 27, boxY + 64);
+
+    // Botones interactivos del mecanismo dentro de la torre
+    if (sp && !SpringsModule.massAttached) {
+      this.drawCanvasButton(
+        ctx,
+        boxX + 10,
+        boxY + 76,
+        boxW - 20,
+        28,
+        'COLOCAR MASA M EN SOPORTE',
+        '#0284c7',
+        () => SpringsModule.attachMass()
+      );
+    } else if (sp && SpringsModule.massAttached && !SpringsModule.safetyLatchReleased) {
+      this.drawCanvasButton(
+        ctx,
+        boxX + 10,
+        boxY + 76,
+        boxW - 20,
+        28,
+        'ACCIONAR SEGURO (SOLTAR CARGA)',
+        '#d97706',
+        () => SpringsModule.releaseSafetyLatch()
+      );
+    } else if (sp && SpringsModule.massAttached && SpringsModule.safetyLatchReleased) {
+      this.drawCanvasButton(
+        ctx,
+        boxX + 10,
+        boxY + 76,
+        boxW - 20,
+        28,
+        'RETIRAR MASA (PROBAR RECUPERACIÓN)',
+        SpringsModule.primaryLatchEngaged ? '#10b981' : '#475569',
+        () => SpringsModule.removeMassToVerifyRecovery()
+      );
+    }
+
+    // Cuadro de diagnóstico físico cualitativo en la esquina inferior derecha de la torre
+    ctx.fillStyle = '#090d14';
+    ctx.strokeStyle = SpringsModule.failureReason ? '#f59e0b' : '#2d3d59';
+    ctx.fillRect(476, 456, 358, 48);
+    ctx.strokeRect(476, 456, 358, 48);
+
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '11px "Inter", sans-serif';
+    this.wrapText(ctx, SpringsModule.diagnosticStatus, 486, 474, 340, 15);
+  },
+
+  drawCanvasButton(ctx, x, y, w, h, label, color, onClick) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 9.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + w / 2, y + h / 2 + 3.5);
+    ctx.restore();
+
+    this.chamber2CanvasButtons.push({ x, y, w, h, onClick });
+  },
+
+  // Renderizador geométrico continuo de resorte helicoidal con espiras, sombras y volumen
+  drawHelicalSpring(ctx, x1, y1, x2, y2, sp) {
+    ctx.save();
+    const N = sp.coils;
+    const R = sp.radius;
+    const totalLen = Math.max(36, y2 - y1);
+    const lead = 10;
+    const bodyLen = totalLen - lead * 2;
+
+    // Sombra proyectada del resorte
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.lineWidth = sp.wireThickness + 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1 + 4, y1 + 4);
+    ctx.lineTo(x1 + 4, y1 + lead + 4);
+    const steps = N * 12;
+    for (let i = 0; i <= steps; i++) {
+      const u = i / steps;
+      const angle = u * N * Math.PI * 2;
+      const sx = x1 + Math.sin(angle) * R + 4;
+      const sy = y1 + lead + u * bodyLen + 4;
+      ctx.lineTo(sx, sy);
+    }
+    ctx.lineTo(x2 + 4, y2 + 4);
+    ctx.stroke();
+
+    // Espiras traseras (más oscuras para dar sensación de volumen 3D)
+    ctx.strokeStyle = sp.colorShadow;
+    ctx.lineWidth = sp.wireThickness + 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1, y1 + lead);
+    for (let i = 0; i <= steps; i++) {
+      const u = i / steps;
+      const angle = u * N * Math.PI * 2;
+      const sx = x1 + Math.sin(angle) * R;
+      const sy = y1 + lead + u * bodyLen;
+      ctx.lineTo(sx, sy);
+    }
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Alambre principal con brillo metálico
+    ctx.strokeStyle = sp.colorPrimary;
+    ctx.lineWidth = sp.wireThickness;
+    ctx.stroke();
+
+    // Brillo especular fino sobre las crestas de las espiras
+    ctx.strokeStyle = sp.colorHighlight;
+    ctx.lineWidth = Math.max(1, sp.wireThickness * 0.35);
+    ctx.stroke();
+    ctx.restore();
+  },
+
+  drawCalibratedMass(ctx, cx, cy) {
+    ctx.save();
+    // Gancho de la masa
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy - 22, 6, Math.PI, 0);
+    ctx.stroke();
+
+    // Cuerpo cilíndrico de latón/acero bruñido con bisel
+    const grad = ctx.createLinearGradient(cx - 24, cy - 18, cx + 24, cy - 18);
+    grad.addColorStop(0, '#78350f');
+    grad.addColorStop(0.35, '#f59e0b');
+    grad.addColorStop(0.7, '#b45309');
+    grad.addColorStop(1, '#451a03');
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = '#fde68a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.roundRect(cx - 24, cy - 16, 48, 40, 5);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#090d14';
+    ctx.font = '800 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('MASA M', cx, cy + 4);
+    ctx.font = '600 8.5px "JetBrains Mono", monospace';
+    ctx.fillText('PATRÓN', cx, cy + 16);
+    ctx.restore();
+  },
+
+  // --------------------------------------------------------------------------
+  // CÁMARA III: TERCER COMPARTIMENTO (MÓDULO RESERVADO)
+  // --------------------------------------------------------------------------
+  renderChamber3Reserved(ctx) {
+    const W = this.logicalWidth;
+    const H = this.logicalHeight;
+
+    ctx.fillStyle = '#0a0f17';
+    ctx.fillRect(0, 0, W, H);
+
+    // Cuadrícula de ingeniería
+    ctx.strokeStyle = 'rgba(51, 65, 85, 0.2)';
+    ctx.lineWidth = 1;
+    for (let x = 30; x < W - 30; x += 25) {
+      ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, H - 30); ctx.stroke();
+    }
+    for (let y = 30; y < H - 30; y += 25) {
+      ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(W - 30, y); ctx.stroke();
+    }
+
+    const walls3 = [
+      { x: 14, y: 14, w: 872, h: 16 },
+      { x: 14, y: 530, w: 872, h: 16 },
+      { x: 14, y: 14, w: 16, h: 532 },
+      { x: 870, y: 14, w: 16, h: 532 },
+      { x: 260, y: 30, w: 14, h: 140 },
+      { x: 620, y: 390, w: 14, h: 140 }
+    ];
+    this.renderWallsWithDepth(ctx, walls3);
+
+    // Rieles de montaje y zócalos preparados para futura experiencia física
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(120, 180); ctx.lineTo(780, 180);
+    ctx.moveTo(120, 380); ctx.lineTo(780, 380);
+    ctx.stroke();
+
+    for (let x = 160; x <= 740; x += 145) {
+      this.drawScrewHead(ctx, x, 180, 7);
+      this.drawScrewHead(ctx, x, 380, 7);
+    }
+
+    // Placa central oficial «Tercer módulo: diseño pendiente»
+    const px = W / 2 - 230, py = H / 2 - 68, pw = 460, ph = 136;
+    ctx.fillStyle = '#151e2e';
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeRect(px, py, pw, ph);
+
+    this.drawScrewHead(ctx, px + 14, py + 14, 5);
+    this.drawScrewHead(ctx, px + pw - 14, py + 14, 5);
+    this.drawScrewHead(ctx, px + 14, py + ph - 14, 5);
+    this.drawScrewHead(ctx, px + pw - 14, py + ph - 14, 5);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '700 16px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('«Tercer módulo: diseño pendiente»', W / 2, H / 2 - 14);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12.5px "Inter", sans-serif';
+    ctx.fillText(
+      'Compartimento desbloqueado y preparado con soportes de instalación,',
+      W / 2,
+      H / 2 + 16
+    );
+    ctx.fillText(
+      'paredes divisorias y bus de sensores para el tercer experimento físico.',
+      W / 2,
+      H / 2 + 36
+    );
+
+    this.renderAcrylicCoverAndScrews(ctx, W, H);
+  },
+
+  // --------------------------------------------------------------------------
+  // UTILIDADES DE CUBIERTA DE ACRÍLICO, TORNILLOS Y ENGRANAJES
+  // --------------------------------------------------------------------------
+  renderAcrylicCoverAndScrews(ctx, W, H) {
+    if (SimState.showAcrylicCover) {
+      ctx.save();
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
+      grad.addColorStop(0.46, 'rgba(255, 255, 255, 0.0)');
+      grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.055)');
+      grad.addColorStop(0.54, 'rgba(255, 255, 255, 0.0)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.025)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(16, 16, W - 32, H - 32);
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(20, 20, W - 40, H - 40);
+      ctx.restore();
+    }
+
+    // Tornillos hexagonales en las esquinas del marco
+    const corners = [
+      [22, 22],
+      [W - 22, 22],
+      [W - 22, H - 22],
+      [22, H - 22],
+      [W / 2, 22],
+      [W / 2, H - 22]
+    ];
+    for (const [sx, sy] of corners) {
+      this.drawScrewHead(ctx, sx, sy, 6);
+    }
+  },
+
+  drawScrewHead(ctx, x, y, r) {
+    ctx.save();
+    ctx.fillStyle = '#475569';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.55, y - r * 0.25);
+    ctx.lineTo(x + r * 0.55, y + r * 0.25);
+    ctx.stroke();
+    ctx.restore();
+  },
+
+  drawGear(ctx, cx, cy, r, teeth, angle, color) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let i = 0; i < teeth * 2; i++) {
+      const a = (i * Math.PI) / teeth;
+      const rad = i % 2 === 0 ? r + 3 : r - 1;
+      const gx = Math.cos(a) * rad;
+      const gy = Math.sin(a) * rad;
+      if (i === 0) ctx.moveTo(gx, gy);
+      else ctx.lineTo(gx, gy);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#090d14';
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.38, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  },
+
+  wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let curY = y;
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line, x, curY);
+        line = words[n] + ' ';
+        curY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, curY);
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 3: SISTEMA DE INTERACCIÓN DRAG & DROP, ROTACIÓN Y TECLADO (03_interaction.js)
+// ============================================================================
+
+const InteractionSystem = {
+  draggingPiece: null,
+  draggingFromInventoryType: null,
+  isRotatingPiece: false,
+  dragPrevX: 0,
+  dragPrevY: 0,
+
+  // Estado de arrastre en Cámara II (Resortes y Masa)
+  draggingSpring: null,
+  draggingMass: false,
+  pointerLogicalX: 0,
+  pointerLogicalY: 0,
+
+  init(canvas) {
+    // Eventos de ratón y pantallas táctiles unificados mediante Pointer Events
+    canvas.addEventListener('pointerdown', e => this.onCanvasPointerDown(e));
+    window.addEventListener('pointermove', e => this.onWindowPointerMove(e));
+    window.addEventListener('pointerup', e => this.onWindowPointerUp(e));
+
+    // Rueda del ratón para rotación continua fina de piezas ópticas
+    canvas.addEventListener(
+      'wheel',
+      e => {
+        if (SimState.mode === 'CHAMBER_1' && OpticsModule.selectedPieceId) {
+          e.preventDefault();
+          const delta = e.deltaY > 0 ? 2 : -2;
+          this.rotateSelectedOpticPiece(delta);
+        }
+      },
+      { passive: false }
+    );
+
+    // Alternativas con teclado para mover, girar y retirar piezas
+    window.addEventListener('keydown', e => this.onKeyDown(e));
+  },
+
+  onCanvasPointerDown(e) {
+    SoundEngine.init();
+    const pt = BoxRenderer.screenToLogical(e.clientX, e.clientY);
+    this.pointerLogicalX = pt.x;
+    this.pointerLogicalY = pt.y;
+
+    // En pantalla inicial: permitir rotar la vista oblicua 3D de la caja experimental
+    if (SimState.mode === 'START') {
+      CameraTransitionSystem.isDraggingOrbit = true;
+      CameraTransitionSystem.lastPointerX = e.clientX;
+      CameraTransitionSystem.lastPointerY = e.clientY;
+      return;
+    }
+
+    // En Cámara I (Óptica Geométrica)
+    if (SimState.mode === 'CHAMBER_1') {
+      // 1. Comprobar si se pulsó el tirador circular de rotación de la pieza seleccionada
+      if (OpticsModule.selectedPieceId) {
+        const sel = OpticsModule.placedPieces.find(p => p.id === OpticsModule.selectedPieceId);
+        if (sel) {
+          const ringR = sel.radius + 14;
+          const rad = (sel.angle * Math.PI) / 180;
+          const hx = sel.x + Math.cos(rad) * ringR;
+          const hy = sel.y + Math.sin(rad) * ringR;
+          if (Math.hypot(pt.x - hx, pt.y - hy) <= 13) {
+            ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+            this.isRotatingPiece = true;
+            return;
+          }
+        }
+      }
+
+      // 2. Comprobar si se seleccionó una pieza ya instalada en el tablero
+      for (let i = OpticsModule.placedPieces.length - 1; i >= 0; i--) {
+        const p = OpticsModule.placedPieces[i];
+        if (Math.hypot(pt.x - p.x, pt.y - p.y) <= p.radius + 8) {
+          ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+          OpticsModule.selectedPieceId = p.id;
+          this.draggingPiece = p;
+          this.dragPrevX = p.x;
+          this.dragPrevY = p.y;
+          SoundEngine.playClick(540, 0.035);
+          this.updateInspectorUI();
+          return;
+        }
+      }
+
+      // Clic en espacio vacío deselecciona
+      OpticsModule.selectedPieceId = null;
+      this.updateInspectorUI();
+      return;
+    }
+
+    // En Cámara II (Sistema de Resortes y Elasticidad)
+    if (SimState.mode === 'CHAMBER_2') {
+      // 1. Comprobar botones interactivos dentro del lienzo de la torre
+      for (const b of BoxRenderer.chamber2CanvasButtons) {
+        if (pt.x >= b.x && pt.x <= b.x + b.w && pt.y >= b.y && pt.y <= b.y + b.h) {
+          b.onClick();
+          return;
+        }
+      }
+
+      // 2. Comprobar clic/arrastre sobre la masa en su bandeja (x=352, y=464) o colgada en la torre
+      const tw = SpringsModule.tower;
+      const sp = SpringsModule.getInstalledSpring();
+      if (!SpringsModule.massAttached && Math.hypot(pt.x - 352, pt.y - 464) <= 36) {
+        this.draggingMass = true;
+        SoundEngine.playClick(390, 0.04);
+        return;
+      }
+      if (sp && SpringsModule.massAttached) {
+        const massY = tw.hookY + 24 + tw.baseFreeLength + SpringsModule.currentExtension + 32;
+        if (Math.hypot(pt.x - tw.hookX, pt.y - massY) <= 36) {
+          // Si ya está colgada y aún no se liberó el seguro, liberarlo; si ya se liberó, retirarla
+          if (!SpringsModule.safetyLatchReleased) {
+            SpringsModule.releaseSafetyLatch();
+          } else {
+            SpringsModule.removeMassToVerifyRecovery();
+          }
+          return;
+        }
+      }
+
+      // 3. Comprobar arrastre directo de cualquiera de los 4 resortes desde la estantería
+      for (const sItem of SpringsModule.springs) {
+        if (
+          pt.x >= sItem.rackX - 34 &&
+          pt.x <= sItem.rackX + 34 &&
+          pt.y >= 150 &&
+          pt.y <= 390
+        ) {
+          this.draggingSpring = sItem;
+          SoundEngine.playClick(480, 0.04);
+          return;
+        }
+      }
+    }
+  },
+
+  onWindowPointerMove(e) {
+    if (SimState.mode === 'START' && CameraTransitionSystem.isDraggingOrbit) {
+      const dx = e.clientX - CameraTransitionSystem.lastPointerX;
+      const dy = e.clientY - CameraTransitionSystem.lastPointerY;
+      CameraTransitionSystem.lastPointerX = e.clientX;
+      CameraTransitionSystem.lastPointerY = e.clientY;
+      CameraTransitionSystem.orbitYaw += dx * 0.007;
+      CameraTransitionSystem.orbitPitch = Math.max(
+        0.28,
+        Math.min(0.95, CameraTransitionSystem.orbitPitch + dy * 0.005)
+      );
+      return;
+    }
+
+    if (!BoxRenderer.canvas) return;
+    const pt = BoxRenderer.screenToLogical(e.clientX, e.clientY);
+    this.pointerLogicalX = pt.x;
+    this.pointerLogicalY = pt.y;
+
+    if (SimState.mode === 'CHAMBER_1') {
+      if (this.isRotatingPiece && OpticsModule.selectedPieceId) {
+        const sel = OpticsModule.placedPieces.find(p => p.id === OpticsModule.selectedPieceId);
+        if (sel) {
+          const ang = (Math.atan2(pt.y - sel.y, pt.x - sel.x) * 180) / Math.PI;
+          sel.angle = Math.round(ang * 2) / 2;
+          RayTracerEngine.recalculate();
+          this.updateInspectorUI();
+        }
+        return;
+      }
+
+      if (this.draggingPiece) {
+        const p = this.draggingPiece;
+        const snapped = OpticsModule.applySnap(pt.x, pt.y);
+        if (OpticsModule.isPositionValid(snapped.x, snapped.y, p.radius, p.id)) {
+          p.x = snapped.x;
+          p.y = snapped.y;
+          RayTracerEngine.recalculate();
+        }
+      }
+    }
+  },
+
+  onWindowPointerUp(e) {
+    CameraTransitionSystem.isDraggingOrbit = false;
+    this.isRotatingPiece = false;
+
+    if (SimState.mode === 'CHAMBER_1' && this.draggingPiece) {
+      const pt = BoxRenderer.screenToLogical(e.clientX, e.clientY);
+      // Si el usuario suelta la pieza fuera de la parte inferior del tablero, devolverla al inventario
+      if (pt.y > OpticsModule.boardHeight - 24) {
+        this.removeSelectedOpticPiece(false);
+      } else {
+        SoundEngine.playClick(620, 0.04);
+      }
+      this.draggingPiece = null;
+      this.rebuildInventoryDock();
+      this.updateInspectorUI();
+      return;
+    }
+
+    if (SimState.mode === 'CHAMBER_2') {
+      const pt = BoxRenderer.screenToLogical(e.clientX, e.clientY);
+      if (this.draggingSpring) {
+        // Si lo suelta en la zona de la torre o hace clic sobre el resorte, instalarlo en el gancho superior
+        if (pt.x > 420 || Math.hypot(pt.x - this.draggingSpring.rackX, pt.y - 250) < 140) {
+          SpringsModule.installSpring(this.draggingSpring.id);
+        }
+        this.draggingSpring = null;
+      }
+      if (this.draggingMass) {
+        if (pt.x > 420 || !SpringsModule.massAttached) {
+          SpringsModule.attachMass();
+        }
+        this.draggingMass = false;
+      }
+    }
+  },
+
+  // Iniciar arrastre o colocación desde una tarjeta del inventario inferior
+  spawnOrSelectFromInventory(itemKey) {
+    SoundEngine.init();
+    if (SimState.mode === 'CHAMBER_1') {
+      const rem = OpticsModule.getRemainingCount(itemKey);
+      if (rem <= 0) {
+        ErrorAndHistoryManager.showToast(
+          'Ya has instalado todas las unidades disponibles de este componente en el tablero.',
+          true
+        );
+        SoundEngine.playErrorBump();
+        return;
+      }
+      const cat = OpticsModule.inventoryCatalog.find(c => c.type === itemKey);
+      if (!cat) return;
+
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+
+      // Buscar posición libre en el banco óptico (priorizando nodos de riel vacíos para comodidad)
+      let spawnX = 350;
+      let spawnY = 280;
+      let found = false;
+      for (const node of OpticsModule.railNodes) {
+        if (OpticsModule.isPositionValid(node.x, node.y, cat.radius)) {
+          spawnX = node.x;
+          spawnY = node.y;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        for (let tries = 0; tries < 40; tries++) {
+          const tx = 160 + (tries % 8) * 75;
+          const ty = 130 + Math.floor(tries / 8) * 75;
+          if (OpticsModule.isPositionValid(tx, ty, cat.radius)) {
+            spawnX = tx;
+            spawnY = ty;
+            break;
+          }
+        }
+      }
+
+      const newPiece = {
+        id: `opt_${OpticsModule.nextIdCounter++}`,
+        type: cat.type,
+        x: spawnX,
+        y: spawnY,
+        angle: cat.defaultAngle,
+        radius: cat.radius
+      };
+      OpticsModule.placedPieces.push(newPiece);
+      OpticsModule.selectedPieceId = newPiece.id;
+      SoundEngine.playClick(580, 0.05);
+      RayTracerEngine.recalculate();
+      this.rebuildInventoryDock();
+      this.updateInspectorUI();
+    } else if (SimState.mode === 'CHAMBER_2') {
+      if (itemKey === 'MASS') {
+        if (!SpringsModule.massAttached) SpringsModule.attachMass();
+        else if (!SpringsModule.safetyLatchReleased) SpringsModule.releaseSafetyLatch();
+        else SpringsModule.removeMassToVerifyRecovery();
+      } else if (itemKey === 'RELEASE') {
+        SpringsModule.releaseSafetyLatch();
+      } else {
+        SpringsModule.installSpring(itemKey);
+      }
+    }
+  },
+
+  rotateSelectedOpticPiece(deltaDeg) {
+    if (!OpticsModule.selectedPieceId) return;
+    const p = OpticsModule.placedPieces.find(x => x.id === OpticsModule.selectedPieceId);
+    if (!p) return;
+    p.angle = ((p.angle + deltaDeg + 180) % 360) - 180;
+    RayTracerEngine.recalculate();
+    this.updateInspectorUI();
+  },
+
+  setSelectedOpticAngle(absAngleDeg) {
+    if (!OpticsModule.selectedPieceId) return;
+    const p = OpticsModule.placedPieces.find(x => x.id === OpticsModule.selectedPieceId);
+    if (!p) return;
+    p.angle = Number(absAngleDeg);
+    RayTracerEngine.recalculate();
+    this.updateInspectorUI();
+  },
+
+  removeSelectedOpticPiece(recordHistory = true) {
+    if (!OpticsModule.selectedPieceId) return;
+    if (recordHistory) {
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+    }
+    OpticsModule.placedPieces = OpticsModule.placedPieces.filter(
+      p => p.id !== OpticsModule.selectedPieceId
+    );
+    OpticsModule.selectedPieceId = null;
+    SoundEngine.playClick(320, 0.045);
+    RayTracerEngine.recalculate();
+    this.rebuildInventoryDock();
+    this.updateInspectorUI();
+  },
+
+  onKeyDown(e) {
+    if (SimState.mode !== 'CHAMBER_1' || !OpticsModule.selectedPieceId) return;
+    const p = OpticsModule.placedPieces.find(x => x.id === OpticsModule.selectedPieceId);
+    if (!p) return;
+
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      this.removeSelectedOpticPiece(true);
+    } else if (e.key === 'q' || e.key === 'Q' || e.key === '[') {
+      this.rotateSelectedOpticPiece(-2);
+    } else if (e.key === 'e' || e.key === 'E' || e.key === ']') {
+      this.rotateSelectedOpticPiece(2);
+    } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+      if (OpticsModule.isPositionValid(p.x - 5, p.y, p.radius, p.id)) {
+        p.x -= 5;
+        RayTracerEngine.recalculate();
+      }
+    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+      if (OpticsModule.isPositionValid(p.x + 5, p.y, p.radius, p.id)) {
+        p.x += 5;
+        RayTracerEngine.recalculate();
+      }
+    } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+      if (OpticsModule.isPositionValid(p.x, p.y - 5, p.radius, p.id)) {
+        p.y -= 5;
+        RayTracerEngine.recalculate();
+      }
+    } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      if (OpticsModule.isPositionValid(p.x, p.y + 5, p.radius, p.id)) {
+        p.y += 5;
+        RayTracerEngine.recalculate();
+      }
+    }
+  },
+
+  updateInspectorUI() {
+    const inspector = document.getElementById('pieceInspector');
+    if (!inspector) return;
+
+    if (SimState.mode !== 'CHAMBER_1' || !OpticsModule.selectedPieceId) {
+      inspector.classList.add('hidden');
+      return;
+    }
+
+    const p = OpticsModule.placedPieces.find(x => x.id === OpticsModule.selectedPieceId);
+    if (!p) {
+      inspector.classList.add('hidden');
+      return;
+    }
+
+    inspector.classList.remove('hidden');
+    const cat = OpticsModule.inventoryCatalog.find(c => c.type === p.type);
+    const nameEl = document.getElementById('inspectorPieceName');
+    const sliderEl = document.getElementById('inspectorAngleSlider');
+    const readoutEl = document.getElementById('inspectorAngleReadout');
+
+    if (nameEl) nameEl.textContent = cat ? cat.name : p.type;
+    if (sliderEl) sliderEl.value = Math.round(p.angle);
+    if (readoutEl) readoutEl.textContent = `${Math.round(p.angle)}°`;
+  },
+
+  rebuildInventoryDock() {
+    const container = document.getElementById('dockItemsContainer');
+    const titleEl = document.getElementById('dockTitleText');
+    const subEl = document.getElementById('dockSubtitleText');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (SimState.mode === 'CHAMBER_1') {
+      if (titleEl) titleEl.textContent = 'Inventario Óptico';
+      if (subEl) subEl.textContent = 'Haz clic o arrastra piezas al interior de la caja y gíralas.';
+
+      for (const item of OpticsModule.inventoryCatalog) {
+        const rem = OpticsModule.getRemainingCount(item.type);
+        const card = document.createElement('div');
+        card.className = `inv-card ${rem === 0 ? 'depleted' : ''}`;
+        card.title = item.description;
+
+        const badge = document.createElement('span');
+        badge.className = 'inv-count-badge';
+        badge.textContent = `${rem}/${item.totalCount}`;
+        card.appendChild(badge);
+
+        const iconCanvas = document.createElement('canvas');
+        iconCanvas.width = 64;
+        iconCanvas.height = 48;
+        iconCanvas.className = 'inv-icon-canvas';
+        this.drawOpticMiniIcon(iconCanvas.getContext('2d'), item.type);
+        card.appendChild(iconCanvas);
+
+        const lbl = document.createElement('div');
+        lbl.className = 'inv-label';
+        lbl.textContent = item.shortName;
+        card.appendChild(lbl);
+
+        card.addEventListener('click', () => {
+          this.spawnOrSelectFromInventory(item.type);
+        });
+        container.appendChild(card);
+      }
+    } else if (SimState.mode === 'CHAMBER_2') {
+      if (titleEl) titleEl.textContent = 'Materiales Entregados';
+      if (subEl) subEl.textContent = 'Selecciona un resorte para colgarlo, fija la masa M y libera el seguro.';
+
+      for (const sp of SpringsModule.springs) {
+        const isInstalled = SpringsModule.installedSpringId === sp.id;
+        const card = document.createElement('div');
+        card.className = `inv-card ${isInstalled ? 'selected-card' : ''}`;
+        card.title = `${sp.label} (${sp.subtitle}): ${sp.hintPlate}`;
+
+        const badge = document.createElement('span');
+        badge.className = 'inv-count-badge';
+        badge.textContent = isInstalled ? 'EN USO' : sp.id;
+        card.appendChild(badge);
+
+        const iconCanvas = document.createElement('canvas');
+        iconCanvas.width = 64;
+        iconCanvas.height = 48;
+        iconCanvas.className = 'inv-icon-canvas';
+        this.drawSpringMiniIcon(iconCanvas.getContext('2d'), sp);
+        card.appendChild(iconCanvas);
+
+        const lbl = document.createElement('div');
+        lbl.className = 'inv-label';
+        lbl.textContent = sp.label;
+        card.appendChild(lbl);
+
+        card.addEventListener('click', () => {
+          SpringsModule.installSpring(sp.id);
+        });
+        container.appendChild(card);
+      }
+
+      // Tarjeta para la Masa Calibrada M
+      const massCard = document.createElement('div');
+      massCard.className = `inv-card ${SpringsModule.massAttached ? 'selected-card' : ''}`;
+      const mBadge = document.createElement('span');
+      mBadge.className = 'inv-count-badge';
+      mBadge.textContent = SpringsModule.massAttached ? 'COLGADA' : '1/1';
+      massCard.appendChild(mBadge);
+
+      const mCanvas = document.createElement('canvas');
+      mCanvas.width = 64;
+      mCanvas.height = 48;
+      mCanvas.className = 'inv-icon-canvas';
+      BoxRenderer.drawCalibratedMass(mCanvas.getContext('2d'), 32, 26);
+      massCard.appendChild(mCanvas);
+
+      const mLbl = document.createElement('div');
+      mLbl.className = 'inv-label';
+      mLbl.textContent = SpringsModule.massAttached ? 'Retirar Masa M' : 'Colocar Masa M';
+      massCard.appendChild(mLbl);
+
+      massCard.addEventListener('click', () => {
+        if (!SpringsModule.massAttached) SpringsModule.attachMass();
+        else SpringsModule.removeMassToVerifyRecovery();
+      });
+      container.appendChild(massCard);
+
+      // Tarjeta para accionar el Seguro de Liberación Manual
+      const latchCard = document.createElement('div');
+      latchCard.className = `inv-card ${SpringsModule.safetyLatchReleased ? 'depleted' : ''}`;
+      const lBadge = document.createElement('span');
+      lBadge.className = 'inv-count-badge';
+      lBadge.textContent = SpringsModule.safetyLatchReleased ? 'LIBRE' : 'SEGURO';
+      latchCard.appendChild(lBadge);
+
+      const lCanvas = document.createElement('canvas');
+      lCanvas.width = 64;
+      lCanvas.height = 48;
+      lCanvas.className = 'inv-icon-canvas';
+      const lctx = lCanvas.getContext('2d');
+      lctx.fillStyle = '#f59e0b';
+      lctx.fillRect(16, 20, 32, 10);
+      lctx.strokeStyle = '#fef3c7';
+      lctx.strokeRect(16, 20, 32, 10);
+      latchCard.appendChild(lCanvas);
+
+      const lLbl = document.createElement('div');
+      lLbl.className = 'inv-label';
+      lLbl.textContent = 'Liberar Seguro';
+      latchCard.appendChild(lLbl);
+
+      latchCard.addEventListener('click', () => {
+        SpringsModule.releaseSafetyLatch();
+      });
+      container.appendChild(latchCard);
+    }
+  },
+
+  drawOpticMiniIcon(ctx, type) {
+    ctx.save();
+    const dummy = { x: 32, y: 24, angle: type === 'prism' ? 30 : -35, radius: 18, type };
+    BoxRenderer.renderOpticalPiece(ctx, dummy, false, false);
+    ctx.restore();
+  },
+
+  drawSpringMiniIcon(ctx, sp) {
+    ctx.save();
+    const miniSp = { ...sp, coils: 6, radius: 9, wireThickness: Math.max(1.5, sp.wireThickness * 0.65) };
+    BoxRenderer.drawHelicalSpring(ctx, 32, 4, 32, 44, miniSp);
+    ctx.restore();
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 9: INTERFAZ, PANEL CIENTÍFICO SECUNDARIO Y AYUDA PROGRESIVA (09_ui_scientific_panel.js)
+// ============================================================================
+
+const ScientificPanelUI = {
+  toggleDrawer() {
+    SimState.scientificPanelOpen = !SimState.scientificPanelOpen;
+    const drawer = document.getElementById('scientificDrawer');
+    if (drawer) {
+      drawer.classList.toggle('closed', !SimState.scientificPanelOpen);
+    }
+    this.renderContent();
+  },
+
+  switchTab(tabKey) {
+    SimState.scientificTab = tabKey;
+    this.renderContent();
+  },
+
+  renderContent() {
+    const body = document.getElementById('scientificDrawerBody');
+    if (!body) return;
+
+    document.querySelectorAll('.drawer-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === SimState.scientificTab);
+    });
+
+    if (SimState.scientificTab === 'optica') {
+      body.innerHTML = `
+        <div class="sci-section">
+          <h4>1. Fenómeno Físico</h4>
+          <p>En un medio homogéneo e isótropo como el aire dentro de la caja, la luz se propaga en línea recta. Cuando el haz blanco incide sobre la frontera entre dos medios, experimenta <strong>reflexión especular</strong>, <strong>refracción</strong> (cambio de velocidad y dirección) y, en medios cuyo índice de refracción varía con la longitud de onda, <strong>dispersión cromática</strong>.</p>
+        </div>
+        <div class="sci-section">
+          <h4>2. Componentes</h4>
+          <ul>
+            <li><strong>Fuente colimada blanca:</strong> Emite un conjunto de rayos cuasi-paralelos compuestos por todas las longitudes de onda visibles.</li>
+            <li><strong>Divisor de haz (50/50):</strong> Lámina semirreflectante que divide el flujo incidente en un haz transmitido (48%) y uno reflejado (48%).</li>
+            <li><strong>Espejo plano:</strong> Superficie reflectante de primera cara que invierte la componente normal del rayo (reflectancia del 94%).</li>
+            <li><strong>Lentes convergente y divergente:</strong> Modifican la vergencia del haz concentrando o separando el conjunto de rayos.</li>
+            <li><strong>Prisma triangular BK7:</strong> Desvía el haz en ambas caras y separa progresivamente los colores espectrales.</li>
+            <li><strong>Fotorresistencias (LDR 1–4):</strong> Sensores semiconductores de sulfuro de cadmio (CdS) cuya resistencia eléctrica disminuye al aumentar la iluminación incidente.</li>
+          </ul>
+        </div>
+        <div class="sci-section">
+          <h4>3. Observaciones Experimentales</h4>
+          <p>Al girar un espejo o divisor un ángulo <em>α</em>, el rayo reflejado gira <em>2α</em>. Al introducir la lente convergente cerca de la fuente, el haz mantiene sus rayos concentrados a lo largo de grandes recorridos. Al atravesar el prisma triangular, la luz violeta (menor longitud de onda, mayor <em>n</em>) se desvía más que la luz roja.</p>
+        </div>
+        <div class="sci-section">
+          <h4>4. Fundamento Científico</h4>
+          <div class="sci-formula">Ley de Reflexión: θᵢ = θᵣ</div>
+          <div class="sci-formula">Ley de Snell: n₁ · sen(θ₁) = n₂(λ) · sen(θ₂)</div>
+          <div class="sci-formula">Divisor de tensión LDR: V_out = V_cc · R_fija / (R_LDR(P) + R_fija)</div>
+          <p>Las fotorresistencias son componentes pasivos: no generan tensión por sí mismas, sino que modulan el voltaje de una batería externa de 5 V DC conectada a una compuerta lógica <strong>AND de 4 entradas</strong>.</p>
+        </div>
+        <div class="sci-section">
+          <h4>5. Limitaciones del Modelo</h4>
+          <p>Se emplea el modelo de <strong>óptica geométrica</strong> y aproximación paraxial en lentes delgadas (despreciando difracción, interferencia y polarización). La dispersión del espectro continuo de luz blanca se modela numéricamente mediante cinco bandas espectrales discretas representativas (650 nm a 420 nm).</p>
+        </div>
+      `;
+    } else if (SimState.scientificTab === 'elasticidad') {
+      body.innerHTML = `
+        <div class="sci-section">
+          <h4>1. Fenómeno Físico</h4>
+          <p>Cuando una fuerza externa estira un resorte helicoidal dentro de su <strong>región elástica</strong>, el material almacena energía potencial elástica y ejerce una fuerza restauradora proporcional a la elongación. Si el esfuerzo supera el <strong>límite de fluencia elástica</strong>, ocurre un deslizamiento cristalino irreversible (<strong>deformación plástica</strong>) y el resorte no recupera su longitud original al retirar la carga.</p>
+        </div>
+        <div class="sci-section">
+          <h4>2. Componentes</h4>
+          <ul>
+            <li><strong>Resorte A (Acero grueso):</strong> Constante de rigidez <em>k</em> muy elevada; presenta mínima elongación bajo la carga patrón.</li>
+            <li><strong>Resorte B (Alambre fino):</strong> Constante <em>k</em> muy baja; se estira en exceso hasta impactar con el tope mecánico inferior.</li>
+            <li><strong>Resorte C (Latón recocido):</strong> Bajo límite elástico; alcanza la zona media pero sufre deformación permanente al superar su fluencia.</li>
+            <li><strong>Resorte D (Acero Cr-V templado):</strong> Constante elástica calibrada y alto límite elástico; alcanza el pestillo y recupera su longitud inicial <em>L₀</em>.</li>
+          </ul>
+        </div>
+        <div class="sci-section">
+          <h4>3. Observaciones Experimentales</h4>
+          <p>Al liberar el seguro de carga, el conjunto masa-resorte no adopta su posición final instantáneamente: describe <strong>oscilaciones amortiguadas</strong> hasta disipar el exceso de energía mecánica y estabilizarse en el equilibrio estático.</p>
+        </div>
+        <div class="sci-section">
+          <h4>4. Fundamento Científico</h4>
+          <div class="sci-formula">Ley de Hooke: F_elástica = -k · Δy</div>
+          <div class="sci-formula">Dinámica: m·y'' + c·y' + k·(y - y_plástico) = m·g</div>
+          <div class="sci-formula">Energía potencial elástica: Uₑ = ½ · k · (Δy)²</div>
+        </div>
+        <div class="sci-section">
+          <h4>5. Limitaciones del Modelo</h4>
+          <p>Se modela el movimiento en una dimensión vertical con amortiguamiento viscoso lineal proporcional a la velocidad, despreciando modos torsionales laterales y efectos térmicos en el alambre.</p>
+        </div>
+      `;
+    } else {
+      body.innerHTML = `
+        <div class="sci-section">
+          <h4>Arquitectura Física de la Caja</h4>
+          <p>«La Caja de los Enigmas Físicos» está concebida como un prototipo de laboratorio construible en acrílico cortado por láser (PMMA de 5 mm), perfiles de aluminio anodizado, fotorresistencias CdS en divisores de tensión a 5 V, servomotores de compuerta y resortes de tracción calibrados.</p>
+        </div>
+        <div class="sci-section">
+          <h4>Tercer Compartimento (Reservado)</h4>
+          <p>El tercer compartimento mantiene sus rieles mecánicos, paredes internas y bus de sensores listos para alojar un futuro módulo experimental sin alterar la arquitectura modular existente.</p>
+        </div>
+      `;
+    }
+  },
+
+  openHintsModal() {
+    const modal = document.getElementById('infoModalBackdrop');
+    const title = document.getElementById('infoModalTitle');
+    const content = document.getElementById('infoModalContent');
+    if (!modal || !title || !content) return;
+
+    const ch = SimState.activeChamber === 2 ? 2 : 1;
+    const unlocked = SimState.hintLevelUnlocked[ch] || 1;
+    SimState.hintLevelUnlocked[ch] = Math.max(1, unlocked);
+
+    title.textContent =
+      ch === 1
+        ? 'Pistas Progresivas — Enigma I (Sistema Óptico)'
+        : 'Pistas Progresivas — Enigma II (Elasticidad y Resortes)';
+
+    const renderTiers = () => {
+      const lvl = SimState.hintLevelUnlocked[ch];
+      if (ch === 1) {
+        content.innerHTML = `
+          <div class="hint-tier">
+            <strong style="color:#38bdf8;">Pista Nivel 1 (Principio Físico):</strong>
+            <p>Un espejo plano refleja la totalidad del haz hacia una sola dirección, por lo que nunca podrá iluminar cuatro sensores simultáneamente por sí solo. Necesitas emplear los <strong> tres divisores de haz (50/50)</strong> a lo largo del corredor central (y = 280) para bifurcar el haz principal hacia las distintas habitaciones.</p>
+          </div>
+          <div class="hint-tier ${lvl < 2 ? 'locked-tier' : ''}">
+            <strong style="color:#f59e0b;">Pista Nivel 2 (Orientación de Trayectorias):</strong>
+            <p>${
+              lvl >= 2
+                ? 'Coloca la <strong>Lente Convergente</strong> cerca de la fuente (Riel R1) para mantener colimado el haz. Luego instala los tres <strong>Divisores de Haz</strong> en el eje horizontal central: el primero a -45° para enviar luz hacia arriba (LDR-1), el segundo a +45° hacia abajo (donde un espejo a -45° la dirigirá a la izquierda hacia LDR-2), y el tercero a -45° hacia arriba (donde otro espejo a -45° la dirigirá a la derecha hacia LDR-3).'
+                : 'Haz clic en «Desbloquear siguiente pista» si necesitas orientación sobre cómo dirigir los haces hacia cada habitación.'
+            }</p>
+          </div>
+          <div class="hint-tier ${lvl < 3 ? 'locked-tier' : ''}">
+            <strong style="color:#10b981;">Pista Nivel 3 (Guía Experimental Completa y Cámara Espectral):</strong>
+            <p>${
+              lvl >= 3
+                ? 'El haz transmitido que atraviesa el tercer divisor continúa hacia la derecha hasta el Riel Espectral R10 (x=690, y=280). Coloca allí el <strong>Prisma Triangular Dispersivo BK7</strong> con ángulo cercano a 48°: la refracción y dispersión cromática desviarán el espectro luminoso en diagonal directamente hacia <strong>LDR-4</strong>.'
+                : 'Disponible solo si solicitas orientación específica.'
+            }</p>
+          </div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            ${
+              lvl < 3
+                ? '<button id="btnUnlockNextHint" class="hw-btn btn-amber">Solicitar pista más específica</button>'
+                : ''
+            }
+            ${
+              SimState.devMode
+                ? '<button id="btnAutoSolveOptics" class="hw-btn btn-cyan">Montar configuración verificada (Modo Lab)</button>'
+                : ''
+            }
+          </div>
+        `;
+      } else {
+        content.innerHTML = `
+          <div class="hint-tier">
+            <strong style="color:#38bdf8;">Pista Nivel 1 (Principio Físico):</strong>
+            <p>El acertijo exige dos propiedades físicas simultáneas: (1) tener una constante elástica <em>k</em> tal que con la masa disponible la elongación alcance la zona verde del pestillo sin quedarse corta ni chocar contra el tope inferior, y (2) no superar su límite elástico para <strong>recuperar su forma original al retirar la carga</strong>.</p>
+          </div>
+          <div class="hint-tier ${lvl < 2 ? 'locked-tier' : ''}">
+            <strong style="color:#f59e0b;">Pista Nivel 2 (Análisis Experimental de los 4 Resortes):</strong>
+            <p>${
+              lvl >= 2
+                ? 'Prueba colgar cada resorte, colocar la masa M y liberar el seguro: observarás que el <strong>Resorte A</strong> es demasiado rígido (apenas se estira) y el <strong>Resorte B</strong> es demasiado flexible (sobrepasa el seguro y golpea el tope). Tanto el C como el D alcanzan la región intermedia bajo carga.'
+                : 'Haz clic en «Solicitar pista más específica» para analizar el comportamiento comparado de los 4 resortes.'
+            }</p>
+          </div>
+          <div class="hint-tier ${lvl < 3 ? 'locked-tier' : ''}">
+            <strong style="color:#10b981;">Pista Nivel 3 (Verificación de Recuperación Elástica):</strong>
+            <p>${
+              lvl >= 3
+                ? 'El <strong>Resorte C (Latón recocido)</strong> sufre deformación plástica permanente bajo la carga y no recupera su longitud libre al retirar la masa. Instala el <strong>Resorte D (Acero elástico Cr-V)</strong>, coloca la masa M, acciona «Liberar Seguro», espera a que el pestillo 1/2 se enganche en la zona verde y finalmente pulsa <strong>«Retirar Masa»</strong> para completar el ciclo de recuperación elástica.'
+                : 'Disponible solo si solicitas orientación específica.'
+            }</p>
+          </div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            ${
+              lvl < 3
+                ? '<button id="btnUnlockNextHint" class="hw-btn btn-amber">Solicitar pista más específica</button>'
+                : ''
+            }
+          </div>
+        `;
+      }
+
+      const nextBtn = document.getElementById('btnUnlockNextHint');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          SimState.hintLevelUnlocked[ch] = Math.min(3, (SimState.hintLevelUnlocked[ch] || 1) + 1);
+          renderTiers();
+        });
+      }
+      const autoBtn = document.getElementById('btnAutoSolveOptics');
+      if (autoBtn) {
+        autoBtn.addEventListener('click', () => {
+          OpticsModule.loadVerifiedOpticalSolution();
+          modal.classList.add('hidden');
+        });
+      }
+    };
+
+    renderTiers();
+    modal.classList.remove('hidden');
+  },
+
+  openTechDocsModal() {
+    const modal = document.getElementById('infoModalBackdrop');
+    const title = document.getElementById('infoModalTitle');
+    const content = document.getElementById('infoModalContent');
+    if (!modal || !title || !content) return;
+
+    title.textContent = 'Documentación Técnica, Arquitectura de 10 Módulos y Verificación Física';
+    content.innerHTML = `
+      <div class="sci-section">
+        <h4>1. Ejecución e Independencia de Red</h4>
+        <p>El simulador está construido con HTML5 estándar, CSS3 y JavaScript modular sin dependencias externas de red, por lo que puede ejecutarse directamente abriendo el archivo local en cualquier navegador moderno de escritorio o tableta.</p>
+      </div>
+      <div class="sci-section">
+        <h4>2. Estructura de los 10 Módulos del Sistema</h4>
+        <ul>
+          <li><strong>Módulo 1 (Motor Principal):</strong> Bucle de tiempo real <code>requestAnimationFrame</code> con paso temporal <code>dt</code> desacoplado entre integración física y renderizado gráfico.</li>
+          <li><strong>Módulo 2 (Escenario y Renderizado 2.5D/3D):</strong> Proyección oblicua 3D de las 3 cámaras y renderizado multicapa de haces ópticos, fotorresistencias y resortes helicoidales continuos.</li>
+          <li><strong>Módulo 3 (Interacción Drag & Drop / Teclado / Táctil):</strong> Arrastre libre con prevención de colisiones, controlador circular de rotación continua y soporte de teclado (WASD/Flechas, Q/E, Supr).</li>
+          <li><strong>Módulo 4 (Motor de Trazado de Rayos Ópticos):</strong> Intersección geométrica rayo-segmento y rayo-polígono, ley de reflexión, ley de Snell, dispersión de Cauchy en 5 bandas espectrales y lentes paraxiales.</li>
+          <li><strong>Módulo 5 (Componentes y Sensores LDR):</strong> Modelo eléctrico real con fuente DC de 5 V, divisores resistivos con fotorresistencias CdS y compuerta lógica AND de 4 entradas.</li>
+          <li><strong>Módulo 6 (Modelo Dinámico de Resortes):</strong> Integración numérica sub-muestreada de EDO amortiguada de 2º orden con límite de fluencia plástica y trinquete mecánico de dos etapas.</li>
+          <li><strong>Módulo 7 (Control de Estados y Desbloqueos):</strong> Progresión secuencial entre compartimentos y Modo Laboratorio/Desarrollo para pruebas aisladas.</li>
+          <li><strong>Módulo 8 (Cámaras y Transiciones Cinematográficas):</strong> Transformación continua de vista superior 2D a perspectiva oblicua 3D, apertura de compuertas y caída gravitatoria de cajitas con materiales.</li>
+          <li><strong>Módulo 9 (Interfaz y Panel Científico):</strong> Panel desplegable con fundamento físico, limitaciones y pistas progresivas en 3 niveles.</li>
+          <li><strong>Módulo 10 (Gestión de Errores, Audio y Reinicio):</strong> Pila de deshacer (Undo), reinicio por módulo y síntesis de audio físico mediante Web Audio API.</li>
+        </ul>
+      </div>
+      <div class="sci-section">
+        <h4>3. Verificación de Recorridos Satisfactorios y Casos de Fallo</h4>
+        <p><strong>Enigma I (Recorrido Satisfactorio Verificado):</strong> Lente Convergente en (165, 280, 90°), Divisor 1 en (260, 280, -45°) → ilumina LDR-1 (V_out = 4.21 V ≥ 2.40 V); Divisor 2 en (430, 280, +45°) + Espejo 1 en (430, 455, -45°) → ilumina LDR-2 (V_out = 3.68 V); Divisor 3 en (575, 280, -45°) + Espejo 2 en (575, 105, -45°) → ilumina LDR-3 (V_out = 2.91 V); Prisma BK7 en (690, 280, +48°) → refracta y dispersa el espectro hacia LDR-4 (V_out = 2.86 V). Compuerta AND activa la apertura.</p>
+        <p style="margin-top:6px;"><strong>Enigma I (Casos de Fallo Comprobados):</strong> (a) Usar un espejo plano en vez de un divisor en (260, 280) activa LDR-1 pero bloquea el paso hacia LDR-2, LDR-3 y LDR-4. (b) Colocar una lente divergente antes del corredor dispersa el haz reduciendo la potencia por debajo del umbral (anillo ámbar parcial). (c) Desalinear un espejo desvía el haz contra las paredes opacas.</p>
+        <p style="margin-top:6px;"><strong>Enigma II (Recorrido Satisfactorio y Fallos Comprobados):</strong> (a) <em>Resorte A</em> (k=3.25): elongación de 36.9 px, no alcanza la ventana [94..124 px]. (b) <em>Resorte B</em> (k=0.68): elongación de 174 px, sobrepasa el seguro y golpea el tope inferior. (c) <em>Resorte C</em>: supera su límite elástico (42 px) y sufre deformación permanente (+56 px), fallando la recuperación al retirar la masa. (d) <em>Resorte D</em> (k=1.10): se estabiliza en 109.1 px activando el pestillo 1/2 y recupera exactamente L₀ al retirar la masa, desbloqueando la Cámara III.</p>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button id="btnLoadSolutionFromDocs" class="hw-btn btn-cyan">Cargar Solución Óptica Verificada en Cámara I</button>
+      </div>
+    `;
+
+    const btnLoad = document.getElementById('btnLoadSolutionFromDocs');
+    if (btnLoad) {
+      btnLoad.addEventListener('click', () => {
+        SimState.enterChamber(1, true);
+        OpticsModule.loadVerifiedOpticalSolution();
+        modal.classList.add('hidden');
+      });
+    }
+
+    modal.classList.remove('hidden');
+  }
+};
+
+
+// ============================================================================
+// MÓDULO 1: MOTOR PRINCIPAL DEL JUEGO Y BUCLE DE TIEMPO REAL (01_engine.js)
+// ============================================================================
+
+const MainEngine = {
+  lastFrameTime: 0,
+  rafId: null,
+
+  init() {
+    const canvas = document.getElementById('simCanvas');
+    BoxRenderer.init(canvas);
+    InteractionSystem.init(canvas);
+    RayTracerEngine.recalculate();
+
+    const hasSaved = SimState.loadProgress();
+    const btnContinue = document.getElementById('btnStartContinue');
+    if (btnContinue) {
+      btnContinue.style.display = hasSaved ? 'inline-flex' : 'none';
+    }
+
+    this.bindUIControls();
+    SimState.syncUI();
+
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.lastFrameTime = performance.now();
+    const loop = now => {
+      const dt = Math.min(0.05, Math.max(0.001, (now - this.lastFrameTime) / 1000));
+      this.lastFrameTime = now;
+      this.update(dt);
+      BoxRenderer.render();
+      this.rafId = requestAnimationFrame(loop);
+    };
+    this.rafId = requestAnimationFrame(loop);
+  },
+
+  update(dt) {
+    if (SimState.mode === 'CHAMBER_1') {
+      OpticsModule.updateElectricalCircuit(dt);
+      this.updateChamber1HUD();
+    } else if (SimState.mode === 'CHAMBER_2') {
+      SpringsModule.updatePhysics(dt);
+      this.updateChamber2HUD();
+    } else if (SimState.mode === 'CHAMBER_3') {
+      this.updateChamber3HUD();
+    } else if (
+      SimState.mode === 'START' ||
+      SimState.mode === 'TRANSITION_1_2' ||
+      SimState.mode === 'TRANSITION_2_3'
+    ) {
+      CameraTransitionSystem.update(dt);
+    }
+  },
+
+  updateChamber1HUD() {
+    const titleEl = document.getElementById('hudPrimaryText');
+    const subEl = document.getElementById('hudSecondaryText');
+    if (!titleEl || !subEl) return;
+
+    const activeCount = OpticsModule.sensors.filter(s => s.state === 'ACTIVE').length;
+    const partialCount = OpticsModule.sensors.filter(s => s.state === 'PARTIAL').length;
+    titleEl.textContent = `ENIGMA I: DISTRIBUCIÓN LUMINOSA • SENSORES ACTIVOS: ${activeCount} / 4`;
+    if (activeCount === 4) {
+      subEl.textContent = '¡4 fotorresistencias activadas simultáneamente! Abriendo compuerta mecánica...';
+    } else if (partialCount > 0) {
+      subEl.textContent = `${partialCount} sensor(es) con iluminación próxima al umbral (anillo ámbar). Ajusta ángulo o convergencia.`;
+    } else {
+      subEl.textContent = 'Arrastra divisores de haz, espejos, lentes y el prisma desde la bandeja inferior para iluminar los 4 sensores a la vez.';
+    }
+  },
+
+  updateChamber2HUD() {
+    const titleEl = document.getElementById('hudPrimaryText');
+    const subEl = document.getElementById('hudSecondaryText');
+    if (!titleEl || !subEl) return;
+
+    const sp = SpringsModule.getInstalledSpring();
+    titleEl.textContent = `ENIGMA II: ELASTICIDAD Y RESORTES • ${
+      sp ? sp.label.toUpperCase() + ' INSTALADO' : 'SIN RESORTE EN GANCHO'
+    }`;
+    subEl.textContent = SpringsModule.diagnosticStatus;
+  },
+
+  updateChamber3HUD() {
+    const titleEl = document.getElementById('hudPrimaryText');
+    const subEl = document.getElementById('hudSecondaryText');
+    if (!titleEl || !subEl) return;
+    titleEl.textContent = 'TERCER COMPARTIMENTO • MÓDULO EXPERIMENTAL RESERVADO';
+    subEl.textContent = '«Tercer módulo: diseño pendiente» — Estructura mecánica lista para futura expansión.';
+  },
+
+  bindUIControls() {
+    const on = (id, evt, fn) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(evt, fn);
+    };
+
+    // Botones de la Pantalla Inicial
+    on('btnStartNew', 'click', () => {
+      SoundEngine.playClick(520, 0.05);
+      SimState.enterChamber(1, true);
+    });
+    on('btnStartContinue', 'click', () => {
+      SoundEngine.playClick(520, 0.05);
+      const target = SimState.enigma2Solved ? 3 : SimState.enigma1Solved ? 2 : 1;
+      SimState.enterChamber(target, true);
+    });
+    on('btnStartResetAll', 'click', () => {
+      SoundEngine.playClick(340, 0.05);
+      SimState.clearSavedProgress();
+      SimState.enigma1Solved = false;
+      SimState.enigma2Solved = false;
+      OpticsModule.resetBoard();
+      SpringsModule.resetChamber();
+      SimState.enterChamber(1, true);
+      ErrorAndHistoryManager.showToast('Simulador reiniciado por completo al estado inicial.');
+    });
+    on('btnStartDocs', 'click', () => ScientificPanelUI.openTechDocsModal());
+
+    // Navegación entre compartimentos en barra superior
+    on('pillStart', 'click', () => SimState.enterChamber(0, true));
+    on('pillCh1', 'click', () => SimState.enterChamber(1));
+    on('pillCh2', 'click', () => SimState.enterChamber(2));
+    on('pillCh3', 'click', () => SimState.enterChamber(3));
+
+    // Controles de cabecera
+    on('btnDevMode', 'click', () => {
+      SimState.devMode = !SimState.devMode;
+      SimState.syncUI();
+      ErrorAndHistoryManager.showToast(
+        SimState.devMode
+          ? 'Modo Laboratorio/Desarrollo ACTIVADO: puedes inspeccionar cualquier cámara o cargar la solución verificada.'
+          : 'Modo Laboratorio/Desarrollo DESACTIVADO: desbloqueo secuencial estricto activo.'
+      );
+    });
+
+    on('btnToggleAcrylic', 'click', () => {
+      SimState.showAcrylicCover = !SimState.showAcrylicCover;
+      const b = document.getElementById('btnToggleAcrylic');
+      if (b) b.classList.toggle('active-toggle', SimState.showAcrylicCover);
+    });
+
+    on('btnToggleSnap', 'click', () => {
+      SimState.snapToRails = !SimState.snapToRails;
+      const b = document.getElementById('btnToggleSnap');
+      if (b) {
+        b.classList.toggle('active-toggle', SimState.snapToRails);
+        b.textContent = SimState.snapToRails ? 'Anclaje Riel: ON' : 'Anclaje Riel: LIBRE';
+      }
+    });
+
+    on('btnMuteAudio', 'click', () => {
+      const muted = SoundEngine.toggleMute();
+      const b = document.getElementById('btnMuteAudio');
+      if (b) b.textContent = muted ? 'Audio: OFF' : 'Audio: ON';
+    });
+
+    on('btnScientificPanel', 'click', () => ScientificPanelUI.toggleDrawer());
+    on('btnCloseDrawer', 'click', () => ScientificPanelUI.toggleDrawer());
+
+    document.querySelectorAll('.drawer-tab').forEach(tabBtn => {
+      tabBtn.addEventListener('click', () => {
+        ScientificPanelUI.switchTab(tabBtn.dataset.tab);
+      });
+    });
+
+    on('btnHints', 'click', () => ScientificPanelUI.openHintsModal());
+    on('btnTechDocs', 'click', () => ScientificPanelUI.openTechDocsModal());
+    on('btnCloseModal', 'click', () => {
+      const m = document.getElementById('infoModalBackdrop');
+      if (m) m.classList.add('hidden');
+    });
+
+    // Omitir transición cinematográfica o repetirla
+    on('btnSkipTransition', 'click', () => {
+      CameraTransitionSystem.skipCurrentTransition();
+    });
+
+    // Controles de rotación e inspector de pieza óptica
+    on('btnRotMinus15', 'click', () => {
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+      InteractionSystem.rotateSelectedOpticPiece(-15);
+    });
+    on('btnRotMinus1', 'click', () => {
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+      InteractionSystem.rotateSelectedOpticPiece(-1);
+    });
+    on('btnRotPlus1', 'click', () => {
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+      InteractionSystem.rotateSelectedOpticPiece(1);
+    });
+    on('btnRotPlus15', 'click', () => {
+      ErrorAndHistoryManager.pushOpticsSnapshot(OpticsModule.placedPieces);
+      InteractionSystem.rotateSelectedOpticPiece(15);
+    });
+    on('inspectorAngleSlider', 'input', e => {
+      InteractionSystem.setSelectedOpticAngle(e.target.value);
+    });
+    on('btnRemovePiece', 'click', () => {
+      InteractionSystem.removeSelectedOpticPiece(true);
+    });
+
+    // Acciones de la bandeja inferior: Deshacer y Reiniciar Módulo
+    on('btnUndo', 'click', () => {
+      if (SimState.activeChamber === 1) {
+        const prev = ErrorAndHistoryManager.popOpticsSnapshot();
+        if (prev) {
+          OpticsModule.placedPieces = prev;
+          OpticsModule.selectedPieceId = null;
+          RayTracerEngine.recalculate();
+          InteractionSystem.rebuildInventoryDock();
+          InteractionSystem.updateInspectorUI();
+        }
+      } else if (SimState.activeChamber === 2) {
+        const prev = ErrorAndHistoryManager.popSpringsSnapshot();
+        if (prev) {
+          SpringsModule.restoreSnapshot(prev);
+        }
+      }
+    });
+
+    on('btnResetChamber', 'click', () => {
+      if (SimState.activeChamber === 1) {
+        OpticsModule.resetBoard();
+        InteractionSystem.rebuildInventoryDock();
+        InteractionSystem.updateInspectorUI();
+        ErrorAndHistoryManager.showToast('Cámara I reiniciada: todos los componentes ópticos devueltos al inventario.');
+      } else if (SimState.activeChamber === 2) {
+        SpringsModule.resetChamber();
+        ErrorAndHistoryManager.showToast('Cámara II reiniciada: resortes restaurados a su longitud original.');
+      }
+    });
+  }
+};
+
+window.addEventListener('load', () => {
+  MainEngine.init();
+});
+
+  </script>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 </body>
 </html>
