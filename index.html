@@ -1,121 +1,151 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Mantenimiento</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            color: #222;
-        }
-
-        header {
-            background: #1c1c1c;
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        nav {
-            background: #333;
-            padding: 15px;
-            text-align: center;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 15px;
-        }
-
-        main {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-
-        .panel {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 8px #0001;
-        }
-
-        .botones {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .botones a {
-            background: #222;
-            color: white;
-            padding: 15px 25px;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .botones a:hover {
-            background: #555;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: #1c1c1c;
-            color: white;
-            margin-top: 50px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>La Caja de los Enigmas Físicos · Luis Concepcion</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js"
+      }
+    }
+  </script>
 </head>
+<body id="inicio">
+  <!-- Escenario 3D central a pantalla completa -->
+  <section id="stage" aria-label="Simulador 3D interactivo con scroll continuo">
+    <div id="canvas"></div>
+    <div id="error" hidden>No se pudo iniciar la vista 3D. Prueba en un navegador con WebGL habilitado.</div>
+  </section>
 
-<body>
+  <!-- PORTADA / PRINCIPAL SIN CUADROS: Título en grande arriba y Luis Concepcion abajo -->
+  <div id="hero-intro">
+    <div class="hero-top">
+      <div class="hero-eyebrow">FÍSICA EXPERIMENTAL INTERACTIVA</div>
+      <h1 class="hero-big-title">La Caja de los <i>Enigmas Físicos</i></h1>
+    </div>
 
-    <header>
-        <h1>Sistema de Mantenimiento</h1>
-        <p>Panel principal de gestión y mantenimiento</p>
-    </header>
+    <div class="hero-bottom">
+      <div class="hero-creator-name">Luis Concepcion</div>
+      <div class="hero-scroll-prompt">Arrastra para dar vuelta a todo el montaje · Desliza el scroll poco a poco ↓</div>
+    </div>
+  </div>
 
-    <nav>
-        <a href="index.html">Inicio</a>
-        <a href="equipos.html">Equipos</a>
-        <a href="preventivo.html">Mantenimiento preventivo</a>
-        <a href="correctivo.html">Mantenimiento correctivo</a>
-        <a href="contacto.html">Contacto</a>
-    </nav>
+  <!-- Barra superior mínima -->
+  <nav class="minimal-topbar" aria-label="Navegación rápida">
+    <button id="btnResetScrollTop" class="top-pill-link" type="button">
+      ↑ Portada Principal
+    </button>
+    <div class="top-pill-group">
+      <button id="btnOpenSciHelp" class="top-pill-link" type="button">
+        Consulta Científica ?
+      </button>
+      <button id="btnOpenSecondaryPage" class="top-pill-link" type="button">
+        Acerca del Proyecto ↗
+      </button>
+    </div>
+  </nav>
 
-    <main>
-        <section class="panel">
-            <h2>Bienvenido al sistema</h2>
-            <p>
-                Plataforma destinada a organizar, registrar
-                y consultar las actividades de mantenimiento.
-            </p>
+  <!-- Riel lateral derecho indicador del progreso continuo del scroll -->
+  <div class="scroll-rail" title="Progreso continuo del scroll">
+    <div id="scroll-rail-fill" class="scroll-rail-fill"></div>
+    <div class="rail-dot active" data-target="0" title="00 · Banquete Principal"></div>
+    <div class="rail-dot" data-target="1" title="01 · Montaje 1 (Óptica y Lupa)"></div>
+    <div class="rail-dot" data-target="2" title="02 · Montaje 2 (Resortes y Masita)"></div>
+    <div class="rail-dot" data-target="3" title="03 · Montaje 3 (La Llave Fuera de Alcance)"></div>
+  </div>
 
-            <div class="botones">
-                <a href="equipos.html">Gestionar equipos</a>
-                <a href="preventivo.html">Mantenimiento preventivo</a>
-                <a href="correctivo.html">Mantenimiento correctivo</a>
-            </div>
-        </section>
-    </main>
+  <!-- Etiqueta breve flotante en tono chocolate suave transparente -->
+  <aside id="exp-caption" class="floating-choc-caption" aria-live="polite">
+    <div class="eyebrow" id="cap-eyebrow">MONTAJE 01</div>
+    <h2 id="cap-title">Óptica en Oscuridad</h2>
+    <p id="cap-desc">La luz baja poco a poco para ver brillar los haces, el arcoíris y los LEDs.</p>
+    <div id="cap-lock" class="lock-pill">🔒 Scroll bloqueado hasta activar los 4 LEDs</div>
+  </aside>
 
-    <footer>
-        <p>© 2026 Sistema de Mantenimiento</p>
-    </footer>
+  <!-- Controles discretos de vista a la derecha -->
+  <div id="mini-cam-controls" class="mini-cam-bar">
+    <button id="front" class="mini-btn" type="button">Vista frontal</button>
+    <button id="orbit" class="mini-btn" type="button" aria-pressed="false">Girar montaje 360°</button>
+    <button id="zin" class="mini-btn" type="button">Zoom +</button>
+    <button id="zout" class="mini-btn" type="button">Zoom −</button>
+  </div>
 
+  <!-- Controlador flotante de ángulo para la pieza óptica seleccionada en el Montaje 1 -->
+  <div id="optic-rotator" hidden>
+    <span id="rotator-label">Espejo</span>
+    <button id="rot-minus" class="mini-btn" type="button">−5°</button>
+    <input id="rot-slider" type="range" min="-180" max="180" step="1" value="-45">
+    <span id="rot-val">-45°</span>
+    <button id="rot-plus" class="mini-btn" type="button">+5°</button>
+    <button id="rot-del" class="mini-btn" type="button">Quitar ✕</button>
+  </div>
+
+  <!-- Bandeja inferior contextual -->
+  <footer id="bottom-tray" aria-label="Controles del montaje activo"></footer>
+
+  <!-- Modal de Consulta Científica Opcional -->
+  <div id="sci-help-modal" class="secondary-modal" hidden>
+    <div class="secondary-card">
+      <h2>Consulta Científica y Ayuda Experimental</h2>
+      <h3>Montaje 1 · Luz que Baja Poco a Poco, Cámaras de una Sola Abertura y LEDs</h3>
+      <p>
+        A medida que bajas del panel principal al primer montaje, la iluminación desciende gradualmente poco a poco para observar el brillo de la linterna, el enfoque de la <strong>Lupa</strong> por la ranura estrecha, el arcoíris del prisma y los <strong>4 LEDs</strong> (cada uno encerrado en su propia habitación con una única puerta de entrada).
+      </p>
+      <h3>Montaje 2 · Regreso Gradual al Color Normal, 2 Vidas y 2 Minutos</h3>
+      <p>
+        Al avanzar del Montaje 1 al Montaje 2, la iluminación recupera poco a poco su color normal. Arrastra la <strong>Masita</strong> ganada hacia el resorte correcto (<strong>A, B, C o D</strong>).
+      </p>
+      <h3>Montaje 3 · Bobina de Madera al Ras y Elevación con Hierro Dulce</h3>
+      <ul>
+        <li><strong>Bobina de Madera al ras:</strong> La bobina central (<strong>2. MADERA</strong>, claramente identificada con núcleo de madera veteada clara) desciende <strong>al ras</strong> del suelo junto a la llave en el rincón izquierdo (<code>x = 115</code>). Su campo magnético ligero permite arrastrar la llave por el suelo hacia la derecha (hasta <code>x = 187</code>).</li>
+        <li><strong>Elevación con Hierro Dulce:</strong> Una vez en <code>x = 187</code>, sube la bobina de madera, conecta <strong>3. HIERRO DULCE</strong> y bájala al ras para que la llave se adhiera al electroimán, puedas sortear los obstáculos y soltarla en la abertura de salida.</li>
+      </ul>
+      <button id="btnCloseSciHelp" class="top-pill-link" type="button">
+        Cerrar Consulta ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Página secundaria de enlace con retorno al scroll principal -->
+  <div id="secondary-page" class="secondary-modal" hidden>
+    <div class="secondary-card">
+      <h2>La Caja de los Enigmas Físicos — Luis Concepcion</h2>
+      <p>
+        Proyecto interactivo desarrollado por <strong>Luis Concepcion</strong> para la experiencia de Física Experimental a través de tres montajes secuenciales conectados.
+      </p>
+      <button id="btnReturnMainScroll" class="top-pill-link" type="button">
+        ← Volver a la Página Principal del Scroll
+      </button>
+    </div>
+  </div>
+
+  <!-- PÁGINA FINAL DE AGRADECIMIENTO CON LA PASTILLA DE COLECCIÓN BRILLANDO -->
+  <div id="finale-page" class="secondary-modal" hidden>
+    <div class="secondary-card finale-card">
+      <div class="hero-eyebrow" style="color:#ffd166;">¡EXPERIENCIA COMPLETADA CON ÉXITO!</div>
+      <h2>¡Muchas gracias por participar!</h2>
+      <canvas id="glowing-pill-canvas" width="280" height="200"></canvas>
+      <p style="color:#fff8ee; font-size:14.5px;">
+        Has superado los tres enigmas experimentales de <strong>«La Caja de los Enigmas Físicos»</strong> y desbloqueado la <strong>Pastilla Virtual de Colección</strong>.
+      </p>
+      <p>
+        Agradecemos tu dedicación explorando de forma cualitativa la <strong>Óptica Geométrica</strong>, la <strong>Elasticidad de los Materiales</strong> y el <strong>Electromagnetismo</strong> en este simulador desarrollado por <strong>Rubén Concepcion</strong>.
+      </p>
+      <div class="finale-actions">
+        <button id="btnFinaleInspect" class="top-pill-link" type="button">
+          Seguir Explorando las Cajas
+        </button>
+        <button id="btnFinaleRestart" class="top-pill-link" type="button" style="border-color:#ffd166; color:#ffd166;">
+          ↑ Volver al Inicio Principal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/gsap.min.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
